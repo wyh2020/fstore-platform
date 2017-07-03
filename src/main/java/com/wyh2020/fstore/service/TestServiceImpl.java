@@ -18,11 +18,21 @@ public class TestServiceImpl implements TestService {
     @Autowired
     private TestMapper testMapper;
 
-
+    @Override
     public List<Test> getTestList() {
 
         List<Test> testList = this.testMapper.getTestList();
 
         return testList;
+    }
+
+    @Override
+    public int querySum(int id) {
+        return this.testMapper.selectSum(id);
+    }
+
+    @Override
+    public void updateSum(Test test) {
+        this.testMapper.updateSum(test);
     }
 }

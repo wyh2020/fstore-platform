@@ -12,6 +12,22 @@
         SELECT id, name, age from Test
     </select>
 
+    <select id="selectSum" resultType="Integer">
+        SELECT sum FROM Test WHERE 1=1 AND id= #{id,jdbcType = INTEGER}
+    </select>
+
+
+    <update id="updateSum" parameterType="com.wyh2020.fstore.pojo.Test">
+        UPDATE Test t
+        <set>
+            <if test="sum != null">
+                t.sum = #{sum,jdbcType = INTEGER}
+            </if>
+        </set>
+        WHERE
+        t.id= #{id,jdbcType = INTEGER}
+    </update>
+
 </mapper>
 
 

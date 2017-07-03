@@ -12,4 +12,8 @@ import java.util.List;
 public interface TestService {
 
     List<Test> getTestList();
+
+    int querySum(int id);
+
+    void updateSum(Test test);
 }

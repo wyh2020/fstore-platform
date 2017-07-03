@@ -38,4 +38,21 @@ public class TestController {
         return testList.toString();
     }
 
+
+    @ApiOperation(value = "测试sum数值", notes = "测试sum值是否减对了", httpMethod = "GET")
+    @RequestMapping(value = "/testSum", method = {RequestMethod.GET, RequestMethod.POST})
+    public String getLasterSum(){
+        int id = 1;
+        int sum = testService.querySum(id);
+        System.out.println("sum======" + sum);
+        Test test = new Test();
+        test.setId(id);
+        test.setSum(sum-1);
+        testService.updateSum(test);
+        return "减库前的库存为===="+ sum;
+    }
+
+
+
+
 }

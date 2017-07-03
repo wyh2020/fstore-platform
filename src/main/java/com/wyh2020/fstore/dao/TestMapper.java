@@ -14,4 +14,14 @@ import java.util.List;
 public interface TestMapper {
 
     List<Test> getTestList();
+
+    /**
+     * 获取sum值
+     */
+    int selectSum(int id);
+
+    /**
+     * 更新sum值
+     */
+    void updateSum(Test test);
 }
