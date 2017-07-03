@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wyh2020.fstore.dao.TestMapper">
+
+    <resultMap id="testMap" type="com.wyh2020.fstore.pojo.Test"/>
+
+
+    <!--获取商品列表-->
+    <select id="getTestList" resultMap="testMap">
+        SELECT id, name, age from Test
+    </select>
+
+</mapper>
+
+
+
