@@ -488,6 +488,7 @@ log4j.appender.File.layout.ConversionPattern=%-d{yyyy-MM-dd HH:mm:ss}  [ %t:%r ]
     import org.apache.log4j.Logger;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.RequestMethod;
     import org.springframework.web.bind.annotation.RestController;
     
     import java.util.List;
@@ -509,8 +510,8 @@ log4j.appender.File.layout.ConversionPattern=%-d{yyyy-MM-dd HH:mm:ss}  [ %t:%r ]
         Logger logger = Logger.getLogger(TestController.class);
     
     
-        @RequestMapping("/queryList")
-        @ApiOperation(value = "查询Test列表", notes = "查询Test列表")
+        @ApiOperation(value = "查询Test列表", notes = "查询Test列表", httpMethod = "GET")
+        @RequestMapping(value = "/queryList", method = {RequestMethod.GET, RequestMethod.POST})
         public String getTestList(){
             logger.info("进入接口啦啦啦啦啦啦");
             List<Test> testList = testService.getTestList();
@@ -519,6 +520,7 @@ log4j.appender.File.layout.ConversionPattern=%-d{yyyy-MM-dd HH:mm:ss}  [ %t:%r ]
         }
     
     }
+
 ```
  
  【4】在spring-mvc.xml中声明swagger配置bean
@@ -537,7 +539,7 @@ log4j.appender.File.layout.ConversionPattern=%-d{yyyy-MM-dd HH:mm:ss}  [ %t:%r ]
  ```
  localhost:8080/swagger-ui.html 
 ```
- ![效果图](http://note.youdao.com/yws/public/resource/a5812c27766736c7d94c3c86901b7f31/xmlnote/A1559F3B4E2A4FE68971E6AB2D5D6364/4906)
+ ![效果图](http://note.youdao.com/yws/public/resource/a5812c27766736c7d94c3c86901b7f31/xmlnote/0432686C003A40098974A31CBB8376F4/4908)
  
  
  
