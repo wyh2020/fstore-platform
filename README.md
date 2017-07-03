@@ -442,5 +442,9 @@ log4j.appender.File.layout.ConversionPattern=%-d{yyyy-MM-dd HH:mm:ss}  [ %t:%r ]
  ```
  localhost:8080/swagger-ui.html 
 ```
+ ![效果图](http://note.youdao.com/yws/public/resource/a5812c27766736c7d94c3c86901b7f31/xmlnote/A1559F3B4E2A4FE68971E6AB2D5D6364/4906)
+ 
+ 
+ 
  
  
