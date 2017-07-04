@@ -15,5 +15,7 @@ public interface TestService {
 
     int querySum(int id);
 
-    void updateSum(Test test);
+    void updateSum1(Test test);
+
+    void updateSum2(Test test);
 }

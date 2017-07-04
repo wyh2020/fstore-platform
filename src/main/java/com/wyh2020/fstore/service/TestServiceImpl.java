@@ -32,7 +32,14 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
-    public void updateSum(Test test) {
-        this.testMapper.updateSum(test);
+    public void updateSum1(Test test) {
+        this.testMapper.updateSum1(test);
     }
+
+    @Override
+    public void updateSum2(Test test) {
+        this.testMapper.updateSum2(test);
+    }
+
+
 }

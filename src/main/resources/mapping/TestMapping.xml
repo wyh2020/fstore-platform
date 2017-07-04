@@ -17,11 +17,23 @@
     </select>
 
 
-    <update id="updateSum" parameterType="com.wyh2020.fstore.pojo.Test">
+    <update id="updateSum1" parameterType="com.wyh2020.fstore.pojo.Test">
         UPDATE Test t
         <set>
             <if test="sum != null">
                 t.sum = #{sum,jdbcType = INTEGER}
+            </if>
+        </set>
+        WHERE
+        t.id= #{id,jdbcType = INTEGER}
+    </update>
+
+
+    <update id="updateSum2" parameterType="com.wyh2020.fstore.pojo.Test">
+        UPDATE Test t
+        <set>
+            <if test="sum != null">
+                t.sum = t.sum-1
             </if>
         </set>
         WHERE

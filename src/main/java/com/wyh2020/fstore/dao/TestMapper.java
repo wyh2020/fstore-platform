@@ -23,5 +23,11 @@ public interface TestMapper {
     /**
      * 更新sum值
      */
-    void updateSum(Test test);
+    void updateSum1(Test test);
+
+
+    /**
+     * 更新sum值
+     */
+    void updateSum2(Test test);
 }
