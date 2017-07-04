@@ -31,5 +31,7 @@
     <mvc:resources location="classpath:/META-INF/resources/webjars/" mapping="/webjars/**"/>
 
     <import resource="classpath:spring-mybatis.xml"/>
+    <!-- 导入mongodb的配置文件 -->
+    <import resource="spring-mongodb.xml"/>
 
 </beans>
