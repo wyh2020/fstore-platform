@@ -22,7 +22,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableWebMvc
 @EnableSwagger2//启用Swagger2
 @Configuration//让Spring来加载该类配置
-@ComponentScan(basePackages ="com.wyh2020.fstore")
+@ComponentScan(basePackages ="com.wyh2020.fstore.controller")
 public class SwaggerConfig {
     @Bean
     public Docket buildDocket() {

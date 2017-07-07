@@ -46,7 +46,7 @@ public class UserController {
             User user =new User();
             user.setId(""+i);
             user.setAge(i);
-            user.setName("zcy"+i);
+            user.setName("王勇华"+i);
             user.setPassword("zcy"+i);
             userService.insert(user,collectionName);
         }

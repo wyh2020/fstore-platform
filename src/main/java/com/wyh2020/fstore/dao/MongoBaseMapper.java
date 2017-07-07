@@ -8,7 +8,7 @@ import java.util.Map;
  * Date: 2017/7/4
  * Time: 下午5:44
  */
-public interface MongoBase<T> {
+public interface MongoBaseMapper<T> {
 
     //添加
     public void insert(T object, String collectionName);

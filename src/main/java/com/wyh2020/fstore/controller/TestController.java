@@ -132,11 +132,19 @@ public class TestController {
          */
         Thread thread1 = new Thread(new MyThread());
         thread1.start();
-
+        try {
+            Thread.sleep(30);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Thread thread2 = new Thread(new MyThread());
         thread2.start();
-
-        return "使用多线程来测试减库存并发";
+        try {
+            Thread.sleep(30);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return "使用多线程来测试减库存并发ssss";
     }
 
 
@@ -150,11 +158,6 @@ public class TestController {
             test.setId(id);
             test.setSum(sum - 1);
             testService.updateSum1(test);
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 

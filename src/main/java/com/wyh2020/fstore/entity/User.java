@@ -1,19 +1,17 @@
-package com.wyh2020.fstore.pojo;
+package com.wyh2020.fstore.entity;
 
+import com.wyh2020.fstore.base.entity.BaseEntity;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.io.Serializable;
-
 /**
  * Created with wyh.
- * Date: 2017/7/4
- * Time: 下午5:45
+ * Date: 2017/7/5
+ * Time: 下午2:47
  */
 @Data
 @Document
-public class User implements Serializable {
-
+public class User extends BaseEntity{
 
     private static final long serialVersionUID = 1L;
 

@@ -7,6 +7,6 @@ import com.wyh2020.fstore.pojo.User;
  * Date: 2017/7/4
  * Time: 下午5:46
  */
-public interface UserMapper extends MongoBase<User> {
+public interface UserMapper extends MongoBaseMapper<User> {
 
 }
