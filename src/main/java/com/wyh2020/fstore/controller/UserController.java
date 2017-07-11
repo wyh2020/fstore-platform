@@ -42,15 +42,15 @@ public class UserController {
     @RequestMapping(value = "/queryUserList", method = {RequestMethod.GET, RequestMethod.POST})
     public List<User> getUserList(){
         //添加一百个user
-        for(int i=0;i<100;i++){
-            User user =new User();
-            user.setId(""+i);
-            user.setAge(i);
-            user.setName("王勇华"+i);
-            user.setPassword("zcy"+i);
-            userService.insert(user,collectionName);
-        }
-        logger.info("添加100个user成功");
+//        for(int i=0;i<100;i++){
+//            User user =new User();
+//            user.setId(""+i);
+//            user.setAge(i);
+//            user.setName("王勇华"+i);
+//            user.setPassword("zcy"+i);
+//            userService.insert(user,collectionName);
+//        }
+//        logger.info("添加100个user成功");
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("maxAge", 50);
         List<User> users = userService.findAll(params,collectionName);

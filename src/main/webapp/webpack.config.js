@@ -6,7 +6,8 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, './dist'),
     publicPath: '/dist/',
-    filename: 'build.js'
+    filename: 'fstore-[name]-[chunkhash].js',
+    chunkFilename: 'fstore-[name]-[chunkhash].js',
   },
   module: {
     rules: [
@@ -26,7 +27,7 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        loader: 'babel-loader',
+        // loader: 'babel-loader',
         exclude: /node_modules/
       },
       {
@@ -39,8 +40,9 @@ module.exports = {
     ]
   },
   resolve: {
+    extensions: ['.js', '.vue', '.json'],
     alias: {
-      'vue$': 'vue/dist/vue.esm.js'
+      'vue$': 'vue/dist/vue.esm.js',
     }
   },
   devServer: {
