@@ -3,7 +3,9 @@
 let baseUrl = 'http://localhost:8090';
 
 export default async(url = '', data = {}, type = 'GET', method = 'fetch') => {
-	type = type.toUpperCase();
+  console.log("1111111")
+
+  type = type.toUpperCase();
 	url = baseUrl + url;
 
 	if (type == 'GET') {
@@ -19,6 +21,7 @@ export default async(url = '', data = {}, type = 'GET', method = 'fetch') => {
 	}
 
 	if (window.fetch && method == 'fetch') {
+		console.log("22222222")
 		let requestConfig = {
 			credentials: 'include',
 			method: type,
@@ -44,7 +47,9 @@ export default async(url = '', data = {}, type = 'GET', method = 'fetch') => {
 			throw new Error(error)
 		}
 	} else {
-		return new Promise((resolve, reject) => {
+    console.log("3333333")
+
+    return new Promise((resolve, reject) => {
 			let requestObj;
 			if (window.XMLHttpRequest) {
 				requestObj = new XMLHttpRequest();

@@ -1,9 +1,14 @@
 {
   "presets": [
-    ["env", {"modules": false}]
+    [
+      "latest",
+      "stage-0"
+    ]
   ],
   "plugins": [
     [
+      "transform-runtime",
+      "transform-decorators-legacy",
       "component",
       [{"libraryName": "element-ui", "styleLibraryName": "theme-default"}],
       "syntax-dynamic-import"

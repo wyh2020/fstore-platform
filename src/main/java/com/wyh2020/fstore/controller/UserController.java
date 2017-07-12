@@ -1,5 +1,7 @@
 package com.wyh2020.fstore.controller;
 
+import com.wyh2020.fstore.base.common.CentreCutPageResponse;
+import com.wyh2020.fstore.base.controller.BaseController;
 import com.wyh2020.fstore.pojo.User;
 import com.wyh2020.fstore.service.UserService;
 import io.swagger.annotations.Api;
@@ -8,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -23,7 +26,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/user")
 @Api(value = "UserController", description = "User接口")
-public class UserController {
+public class UserController extends BaseController{
 
 
 
@@ -40,7 +43,7 @@ public class UserController {
 
     @ApiOperation(value = "添加并根据条件查找列表", notes = "添加并根据条件查找列表", httpMethod = "GET")
     @RequestMapping(value = "/queryUserList", method = {RequestMethod.GET, RequestMethod.POST})
-    public List<User> getUserList(){
+    public @ResponseBody Map<String, Object> getUserList(){
         //添加一百个user
 //        for(int i=0;i<100;i++){
 //            User user =new User();
@@ -53,10 +56,16 @@ public class UserController {
 //        logger.info("添加100个user成功");
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("maxAge", 50);
-        List<User> users = userService.findAll(params,collectionName);
-        System.out.println("users.size()===" + users.size());
+        List<User> userList = userService.findAll(params,collectionName);
+        System.out.println("users.size()===" + userList.size());
         logger.info("查询列表成功");
-        return users;
+        CentreCutPageResponse<User> response = new CentreCutPageResponse<User>();
+
+        response.setPageNum(0);
+        response.setPageSize(50);
+        response.setTotalCount(userList.size());
+        response.setDataList(userList);
+        return this.successDataResult(response);
     }
 
 

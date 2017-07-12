@@ -3,11 +3,11 @@
         <el-table :data="tableData" highlight-current-row style="width: 100%">
             <el-table-column type="index" width="100">
             </el-table-column>
-            <el-table-column property="registe_time" label="注册日期" width="220">
+            <el-table-column property="name" label="姓名" width="220">
             </el-table-column>
-            <el-table-column property="username" label="用户姓名" width="220">
+            <el-table-column property="age" label="年龄" width="220">
             </el-table-column>
-            <el-table-column property="city" label="注册地址">
+            <el-table-column property="password" label="密码">
             </el-table-column>
         </el-table>
         <div class="Pagination" style="text-align: left;margin-top: 10px;">
@@ -24,27 +24,13 @@
 </template>
 
 <script>
-  import {getUserList} from '../../api/getData'
+  import BMFetch from '../../util/BMFetch'
+
+  import Immutable from 'immutable'
   export default {
     data(){
       return {
-        tableData: [{
-          registe_time: '2016-05-02',
-          username: '王小虎',
-          city: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          registe_time: '2016-05-04',
-          username: '王小虎',
-          city: '上海市普陀区金沙江路 1517 弄'
-        }, {
-          registe_time: '2016-05-01',
-          username: '王小虎',
-          city: '上海市普陀区金沙江路 1519 弄'
-        }, {
-          registe_time: '2016-05-03',
-          username: '王小虎',
-          city: '上海市普陀区金沙江路 1516 弄'
-        }],
+        tableData: [],
 
         currentRow: null,
         offset: 0,
@@ -74,16 +60,18 @@
 //            this.getUsers()
       },
       getUsers(){
-        const Users = getUserList();
-        console.log("Users===="+Users)
-        this.tableData = [];
-        Users.forEach(item => {
-          const tableData = {};
-          tableData.username = item.username;
-          tableData.registe_time = item.registe_time;
-          tableData.city = item.city;
-          this.tableData.push(tableData);
+        const Users = [];
+
+        BMFetch({
+          url: "/user/queryUserList",
+          method: "GET",
+        }).then((res)=> {
+          let data = res.data;
+          console.log("1111111Users===="+Immutable.fromJS(data))
+          console.log("2222222Users===="+data)
+          this.tableData = data.dataList;
         })
+
       }
     },
   }

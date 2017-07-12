@@ -16,8 +16,10 @@ import Router from 'vue-router';
 /**
  * webpack2.4.0+ 用法
  */
-const Demo = () => import('../views/demo/index.vue');
-const Home = () => import('../views/home/index.vue');
+const Demo = () => import(/* webpackChunkName: "demo" */'../views/demo/index.vue');
+const Home = () => import(/* webpackChunkName: "home" */'../views/home/index.vue');
+
+
 
 
 Vue.use(Router);
