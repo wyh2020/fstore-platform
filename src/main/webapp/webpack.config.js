@@ -46,9 +46,12 @@ module.exports = {
     }
   },
   devServer: {
+    contentBase: "../../",  //以public为根目录提供文件
     historyApiFallback: true,
-    noInfo: true
+    inline: true,
+    port: 9999
   },
+
   performance: {
     hints: false
   },

@@ -5,11 +5,12 @@
             <el-submenu index="2">
                 <template slot="title"><i class="el-icon-document"></i>列表管理</template>
                 <el-menu-item index="demo">DEMO列表</el-menu-item>
-                <el-menu-item index="userList">用户列表</el-menu-item>
-                <el-menu-item index="shopList">商家列表</el-menu-item>
-                <el-menu-item index="foodList">食品列表</el-menu-item>
-                <el-menu-item index="orderList">订单列表</el-menu-item>
-                <el-menu-item index="adminList">管理员列表</el-menu-item>
+                <el-menu-item index="vuex-state">测试vuex-state</el-menu-item>
+                <el-menu-item index="vuex-mapState">测试vuex-mapState</el-menu-item>
+                <el-menu-item index="vuex-getters">测试vuex-getters</el-menu-item>
+                <el-menu-item index="vuex-mapGetters">测试vuex-mapGetters</el-menu-item>
+                <el-menu-item index="vuex-mutations">测试vuex-mutations</el-menu-item>
+                <el-menu-item index="vuex-action">测试vuex-action</el-menu-item>
             </el-submenu>
             <el-submenu index="3">
                 <template slot="title"><i class="el-icon-plus"></i>添加数据</template>
