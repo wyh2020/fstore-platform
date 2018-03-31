@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wyh2020.fstore.dao.CartMapper">
+
+
+	<resultMap id="CartPo" type="com.wyh2020.fstore.po.cart.CartPo">
+		<result column="id" property="id" jdbcType="VARCHAR"/>
+		<result column="userCode" property="usercode" jdbcType="VARCHAR"/>
+		<result column="shopCode" property="shopcode" jdbcType="VARCHAR"/>
+		<result column="goodId" property="goodid" jdbcType="VARCHAR"/>
+		<result column="price" property="price" jdbcType="DECIMAL"/>
+		<result column="creater" property="creater" jdbcType="VARCHAR"/>
+		<result column="createTime" property="createtime" jdbcType="TIMESTAMP"/>
+		<result column="updater" property="updater" jdbcType="VARCHAR"/>
+		<result column="updateTime" property="updatetime" jdbcType="TIMESTAMP"/>
+	</resultMap>
+
+	<sql id="fieldSql">
+		 t.id
+		,t.userCode
+		,t.shopCode
+		,t.goodId
+		,t.price
+		,t.creater
+		,t.createTime
+		,t.updater
+		,t.updateTime
+	</sql>
+
+	<sql id="whereSql">
+		<if test="id != null and id != ''">
+			AND t.id = #{id,jdbcType = VARCHAR}
+		</if>
+		<if test="idList != null">
+			AND 
+			<foreach collection="idList" item="idItem" open="(" close=")" separator="OR">
+				t.id = #{idItem,jdbcType = VARCHAR}
+			</foreach>
+		</if>
+		<if test="usercode != null and usercode != ''">
+			AND t.userCode = #{usercode,jdbcType = VARCHAR}
+		</if>
+		<if test="shopcode != null and shopcode != ''">
+			AND t.shopCode = #{shopcode,jdbcType = VARCHAR}
+		</if>
+		<if test="goodid != null and goodid != ''">
+			AND t.goodId = #{goodid,jdbcType = VARCHAR}
+		</if>
+		<if test="price != null">
+			AND t.price = #{price,jdbcType = DECIMAL}
+		</if>
+		<if test="creater != null and creater != ''">
+			AND t.creater = #{creater,jdbcType = VARCHAR}
+		</if>
+		<if test="updater != null and updater != ''">
+			AND t.updater = #{updater,jdbcType = VARCHAR}
+		</if>
+	</sql>
+
+	<select id="select" parameterType="String" resultMap="CartPo">
+		SELECT 
+		<include refid="fieldSql"/>
+		  FROM tb_cart t 
+		 WHERE t.id = #{id,jdbcType = VARCHAR} 
+	</select>
+
+	<select id="count" parameterType="com.wyh2020.fstore.condition.cart.CartCondition" resultType="Integer" >
+		SELECT 
+			count(1)
+		  FROM tb_cart t 
+		 WHERE 1=1
+		<include refid="whereSql"/>
+	</select>
+
+	<select id="selectList" parameterType="com.wyh2020.fstore.condition.cart.CartCondition" resultMap="CartPo">
+		SELECT 
+		<include refid="fieldSql"/>
+		  FROM tb_cart t 
+		 WHERE 1=1
+		<include refid="whereSql"/>
+	</select>
+
+	<insert id="insert" parameterType="com.wyh2020.fstore.po.cart.CartPo">
+		INSERT INTO tb_cart(  
+			id
+		<if test="usercode != null">
+			,userCode
+		</if>
+		<if test="shopcode != null">
+			,shopCode
+		</if>
+		<if test="goodid != null">
+			,goodId
+		</if>
+		<if test="price != null">
+			,price
+		</if>
+		<if test="creater != null">
+			,creater
+		</if>
+		<if test="createtime != null">
+			,createTime
+		</if>
+		<if test="updater != null">
+			,updater
+		</if>
+		<if test="updatetime != null">
+			,updateTime
+		</if>
+		)
+		VALUES( 
+			#{id,jdbcType=VARCHAR}
+		<if test="usercode != null">
+			,#{usercode,jdbcType=VARCHAR}
+		</if>
+		<if test="shopcode != null">
+			,#{shopcode,jdbcType=VARCHAR}
+		</if>
+		<if test="goodid != null">
+			,#{goodid,jdbcType=VARCHAR}
+		</if>
+		<if test="price != null">
+			,#{price,jdbcType=DECIMAL}
+		</if>
+		<if test="creater != null">
+			,#{creater,jdbcType=VARCHAR}
+		</if>
+		<if test="createtime != null">
+			,#{createtime,jdbcType=TIMESTAMP}
+		</if>
+		<if test="updater != null">
+			,#{updater,jdbcType=VARCHAR}
+		</if>
+		<if test="updatetime != null">
+			,#{updatetime,jdbcType=TIMESTAMP}
+		</if>
+		)
+	</insert>
+
+	<update id="update" parameterType="com.wyh2020.fstore.po.cart.CartPo">
+		UPDATE tb_cart t
+		 <set>
+		    <if test="usercode != null">
+			    t.userCode = #{usercode,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="shopcode != null">
+			    t.shopCode = #{shopcode,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="goodid != null">
+			    t.goodId = #{goodid,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="price != null">
+			    t.price = #{price,jdbcType = DECIMAL}, 
+		    </if>
+		    <if test="creater != null">
+			    t.creater = #{creater,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="createtime != null">
+			    t.createTime = #{createtime,jdbcType = TIMESTAMP}, 
+		    </if>
+		    <if test="updater != null">
+			    t.updater = #{updater,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="updatetime != null">
+			    t.updateTime = #{updatetime,jdbcType = TIMESTAMP}, 
+		    </if>
+	    </set>
+		 WHERE t.id= #{id,jdbcType = VARCHAR}
+	</update>
+
+	<delete id="delete" parameterType="String">
+		 DELETE FROM tb_cart
+		  WHERE id = #{id,jdbcType=VARCHAR} 
+	</delete>
+</mapper>

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wyh2020.fstore.dao.PayMapper">
+
+
+	<resultMap id="PayPo" type="com.wyh2020.fstore.po.pay.PayPo">
+		<result column="id" property="id" jdbcType="VARCHAR"/>
+		<result column="tradeNo" property="tradeno" jdbcType="VARCHAR"/>
+		<result column="userCode" property="usercode" jdbcType="VARCHAR"/>
+		<result column="shopCode" property="shopcode" jdbcType="VARCHAR"/>
+		<result column="goodIds" property="goodids" jdbcType="VARCHAR"/>
+		<result column="price" property="price" jdbcType="DECIMAL"/>
+		<result column="payment" property="payment" jdbcType="INTEGER"/>
+		<result column="creater" property="creater" jdbcType="VARCHAR"/>
+		<result column="createTime" property="createtime" jdbcType="TIMESTAMP"/>
+		<result column="updater" property="updater" jdbcType="VARCHAR"/>
+		<result column="updateTime" property="updatetime" jdbcType="TIMESTAMP"/>
+	</resultMap>
+
+	<sql id="fieldSql">
+		 t.id
+		,t.tradeNo
+		,t.userCode
+		,t.shopCode
+		,t.goodIds
+		,t.price
+		,t.payment
+		,t.creater
+		,t.createTime
+		,t.updater
+		,t.updateTime
+	</sql>
+
+	<sql id="whereSql">
+		<if test="id != null and id != ''">
+			AND t.id = #{id,jdbcType = VARCHAR}
+		</if>
+		<if test="idList != null">
+			AND 
+			<foreach collection="idList" item="idItem" open="(" close=")" separator="OR">
+				t.id = #{idItem,jdbcType = VARCHAR}
+			</foreach>
+		</if>
+		<if test="tradeno != null and tradeno != ''">
+			AND t.tradeNo = #{tradeno,jdbcType = VARCHAR}
+		</if>
+		<if test="usercode != null and usercode != ''">
+			AND t.userCode = #{usercode,jdbcType = VARCHAR}
+		</if>
+		<if test="shopcode != null and shopcode != ''">
+			AND t.shopCode = #{shopcode,jdbcType = VARCHAR}
+		</if>
+		<if test="goodids != null and goodids != ''">
+			AND t.goodIds = #{goodids,jdbcType = VARCHAR}
+		</if>
+		<if test="price != null">
+			AND t.price = #{price,jdbcType = DECIMAL}
+		</if>
+		<if test="payment != null">
+			AND t.payment = #{payment,jdbcType = INTEGER}
+		</if>
+		<if test="creater != null and creater != ''">
+			AND t.creater = #{creater,jdbcType = VARCHAR}
+		</if>
+		<if test="updater != null and updater != ''">
+			AND t.updater = #{updater,jdbcType = VARCHAR}
+		</if>
+	</sql>
+
+	<select id="select" parameterType="String" resultMap="PayPo">
+		SELECT 
+		<include refid="fieldSql"/>
+		  FROM tb_pay t 
+		 WHERE t.id = #{id,jdbcType = VARCHAR} 
+	</select>
+
+	<select id="count" parameterType="com.wyh2020.fstore.condition.pay.PayCondition" resultType="Integer" >
+		SELECT 
+			count(1)
+		  FROM tb_pay t 
+		 WHERE 1=1
+		<include refid="whereSql"/>
+	</select>
+
+	<select id="selectList" parameterType="com.wyh2020.fstore.condition.pay.PayCondition" resultMap="PayPo">
+		SELECT 
+		<include refid="fieldSql"/>
+		  FROM tb_pay t 
+		 WHERE 1=1
+		<include refid="whereSql"/>
+	</select>
+
+	<insert id="insert" parameterType="com.wyh2020.fstore.po.pay.PayPo">
+		INSERT INTO tb_pay(  
+			id
+		<if test="tradeno != null">
+			,tradeNo
+		</if>
+		<if test="usercode != null">
+			,userCode
+		</if>
+		<if test="shopcode != null">
+			,shopCode
+		</if>
+		<if test="goodids != null">
+			,goodIds
+		</if>
+		<if test="price != null">
+			,price
+		</if>
+		<if test="payment != null">
+			,payment
+		</if>
+		<if test="creater != null">
+			,creater
+		</if>
+		<if test="createtime != null">
+			,createTime
+		</if>
+		<if test="updater != null">
+			,updater
+		</if>
+		<if test="updatetime != null">
+			,updateTime
+		</if>
+		)
+		VALUES( 
+			#{id,jdbcType=VARCHAR}
+		<if test="tradeno != null">
+			,#{tradeno,jdbcType=VARCHAR}
+		</if>
+		<if test="usercode != null">
+			,#{usercode,jdbcType=VARCHAR}
+		</if>
+		<if test="shopcode != null">
+			,#{shopcode,jdbcType=VARCHAR}
+		</if>
+		<if test="goodids != null">
+			,#{goodids,jdbcType=VARCHAR}
+		</if>
+		<if test="price != null">
+			,#{price,jdbcType=DECIMAL}
+		</if>
+		<if test="payment != null">
+			,#{payment,jdbcType=INTEGER}
+		</if>
+		<if test="creater != null">
+			,#{creater,jdbcType=VARCHAR}
+		</if>
+		<if test="createtime != null">
+			,#{createtime,jdbcType=TIMESTAMP}
+		</if>
+		<if test="updater != null">
+			,#{updater,jdbcType=VARCHAR}
+		</if>
+		<if test="updatetime != null">
+			,#{updatetime,jdbcType=TIMESTAMP}
+		</if>
+		)
+	</insert>
+
+	<update id="update" parameterType="com.wyh2020.fstore.po.pay.PayPo">
+		UPDATE tb_pay t
+		 <set>
+		    <if test="tradeno != null">
+			    t.tradeNo = #{tradeno,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="usercode != null">
+			    t.userCode = #{usercode,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="shopcode != null">
+			    t.shopCode = #{shopcode,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="goodids != null">
+			    t.goodIds = #{goodids,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="price != null">
+			    t.price = #{price,jdbcType = DECIMAL}, 
+		    </if>
+		    <if test="payment != null">
+			    t.payment = #{payment,jdbcType = INTEGER}, 
+		    </if>
+		    <if test="creater != null">
+			    t.creater = #{creater,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="createtime != null">
+			    t.createTime = #{createtime,jdbcType = TIMESTAMP}, 
+		    </if>
+		    <if test="updater != null">
+			    t.updater = #{updater,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="updatetime != null">
+			    t.updateTime = #{updatetime,jdbcType = TIMESTAMP}, 
+		    </if>
+	    </set>
+		 WHERE t.id= #{id,jdbcType = VARCHAR}
+	</update>
+
+	<delete id="delete" parameterType="String">
+		 DELETE FROM tb_pay
+		  WHERE id = #{id,jdbcType=VARCHAR} 
+	</delete>
+</mapper>

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wyh2020.fstore.dao.GoodMapper">
+
+
+	<resultMap id="GoodPo" type="com.wyh2020.fstore.po.good.GoodPo">
+		<result column="goodId" property="goodid" jdbcType="VARCHAR"/>
+		<result column="shopCode" property="shopcode" jdbcType="VARCHAR"/>
+		<result column="img" property="img" jdbcType="VARCHAR"/>
+		<result column="name" property="name" jdbcType="VARCHAR"/>
+		<result column="type" property="type" jdbcType="INTEGER"/>
+		<result column="price" property="price" jdbcType="DECIMAL"/>
+		<result column="creater" property="creater" jdbcType="VARCHAR"/>
+		<result column="createTime" property="createtime" jdbcType="TIMESTAMP"/>
+		<result column="updater" property="updater" jdbcType="VARCHAR"/>
+		<result column="updateTime" property="updatetime" jdbcType="TIMESTAMP"/>
+	</resultMap>
+
+	<sql id="fieldSql">
+		 t.goodId
+		,t.shopCode
+		,t.img
+		,t.name
+		,t.type
+		,t.price
+		,t.creater
+		,t.createTime
+		,t.updater
+		,t.updateTime
+	</sql>
+
+	<sql id="whereSql">
+		<if test="goodid != null and goodid != ''">
+			AND t.goodId = #{goodid,jdbcType = VARCHAR}
+		</if>
+		<if test="goodidList != null">
+			AND 
+			<foreach collection="goodidList" item="goodidItem" open="(" close=")" separator="OR">
+				t.goodId = #{goodidItem,jdbcType = VARCHAR}
+			</foreach>
+		</if>
+		<if test="shopcode != null and shopcode != ''">
+			AND t.shopCode = #{shopcode,jdbcType = VARCHAR}
+		</if>
+		<if test="img != null and img != ''">
+			AND t.img = #{img,jdbcType = VARCHAR}
+		</if>
+		<if test="name != null and name != ''">
+			AND t.name = #{name,jdbcType = VARCHAR}
+		</if>
+		<if test="type != null">
+			AND t.type = #{type,jdbcType = INTEGER}
+		</if>
+		<if test="price != null">
+			AND t.price = #{price,jdbcType = DECIMAL}
+		</if>
+		<if test="creater != null and creater != ''">
+			AND t.creater = #{creater,jdbcType = VARCHAR}
+		</if>
+		<if test="updater != null and updater != ''">
+			AND t.updater = #{updater,jdbcType = VARCHAR}
+		</if>
+	</sql>
+
+	<select id="select" parameterType="String" resultMap="GoodPo">
+		SELECT 
+		<include refid="fieldSql"/>
+		  FROM tb_good t 
+		 WHERE t.goodId = #{goodid,jdbcType = VARCHAR} 
+	</select>
+
+	<select id="count" parameterType="com.wyh2020.fstore.condition.good.GoodCondition" resultType="Integer" >
+		SELECT 
+			count(1)
+		  FROM tb_good t 
+		 WHERE 1=1
+		<include refid="whereSql"/>
+	</select>
+
+	<select id="selectList" parameterType="com.wyh2020.fstore.condition.good.GoodCondition" resultMap="GoodPo">
+		SELECT 
+		<include refid="fieldSql"/>
+		  FROM tb_good t 
+		 WHERE 1=1
+		<include refid="whereSql"/>
+	</select>
+
+	<insert id="insert" parameterType="com.wyh2020.fstore.po.good.GoodPo">
+		INSERT INTO tb_good(  
+			goodId
+		<if test="shopcode != null">
+			,shopCode
+		</if>
+		<if test="img != null">
+			,img
+		</if>
+		<if test="name != null">
+			,name
+		</if>
+		<if test="type != null">
+			,type
+		</if>
+		<if test="price != null">
+			,price
+		</if>
+		<if test="creater != null">
+			,creater
+		</if>
+		<if test="createtime != null">
+			,createTime
+		</if>
+		<if test="updater != null">
+			,updater
+		</if>
+		<if test="updatetime != null">
+			,updateTime
+		</if>
+		)
+		VALUES( 
+			#{goodid,jdbcType=VARCHAR}
+		<if test="shopcode != null">
+			,#{shopcode,jdbcType=VARCHAR}
+		</if>
+		<if test="img != null">
+			,#{img,jdbcType=VARCHAR}
+		</if>
+		<if test="name != null">
+			,#{name,jdbcType=VARCHAR}
+		</if>
+		<if test="type != null">
+			,#{type,jdbcType=INTEGER}
+		</if>
+		<if test="price != null">
+			,#{price,jdbcType=DECIMAL}
+		</if>
+		<if test="creater != null">
+			,#{creater,jdbcType=VARCHAR}
+		</if>
+		<if test="createtime != null">
+			,#{createtime,jdbcType=TIMESTAMP}
+		</if>
+		<if test="updater != null">
+			,#{updater,jdbcType=VARCHAR}
+		</if>
+		<if test="updatetime != null">
+			,#{updatetime,jdbcType=TIMESTAMP}
+		</if>
+		)
+	</insert>
+
+	<update id="update" parameterType="com.wyh2020.fstore.po.good.GoodPo">
+		UPDATE tb_good t
+		 <set>
+		    <if test="shopcode != null">
+			    t.shopCode = #{shopcode,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="img != null">
+			    t.img = #{img,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="name != null">
+			    t.name = #{name,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="type != null">
+			    t.type = #{type,jdbcType = INTEGER}, 
+		    </if>
+		    <if test="price != null">
+			    t.price = #{price,jdbcType = DECIMAL}, 
+		    </if>
+		    <if test="creater != null">
+			    t.creater = #{creater,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="createtime != null">
+			    t.createTime = #{createtime,jdbcType = TIMESTAMP}, 
+		    </if>
+		    <if test="updater != null">
+			    t.updater = #{updater,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="updatetime != null">
+			    t.updateTime = #{updatetime,jdbcType = TIMESTAMP}, 
+		    </if>
+	    </set>
+		 WHERE t.goodId= #{goodid,jdbcType = VARCHAR}
+	</update>
+
+	<delete id="delete" parameterType="String">
+		 DELETE FROM tb_good
+		  WHERE goodId = #{goodid,jdbcType=VARCHAR} 
+	</delete>
+</mapper>

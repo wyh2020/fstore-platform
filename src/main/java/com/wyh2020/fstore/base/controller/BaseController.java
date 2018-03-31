@@ -1,57 +1,38 @@
 package com.wyh2020.fstore.base.controller;
 
-import com.wyh2020.fstore.base.common.*;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.wyh2020.fstore.base.condition.BaseCondition;
+import com.wyh2020.fstore.base.exception.ArgumentException;
+import com.wyh2020.fstore.base.exception.BaseCenterException;
+import com.wyh2020.fstore.base.exception.BaseException;
+import com.wyh2020.fstore.base.exception.BaseRuntimeException;
+import com.wyh2020.fstore.base.form.BaseQueryForm;
+import com.wyh2020.fstore.base.request.BaseQueryRequest;
+import com.wyh2020.fstore.base.response.CentreCutPageResponse;
+import com.wyh2020.fstore.base.response.CentreListResponse;
+import com.wyh2020.fstore.base.response.ResponseEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Created with wyh.
- * Date: 2017/7/12
- * Time: 下午2:30
- * 场景:控制层基类
+ * <p>
+ * 场景:控制层基类.
+ * </p>
+ *
+ * @version 1.0
+ * @since 18/03/31下午2:07
  */
-public class BaseController implements Dictionary {
-    protected MessageSource resource;
-    /**
-     * 系统日志配置.
-     */
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
-    /**
-     * The action execution was a failure.
-     */
-    public static final String ERROR = "error/error";
-    /**
-     * 转到error/error页面时,model里面存储的错位信息的键.
-     */
-    public static final String ERRORKEY = "errorMsg";
-    /**
-     * 未知异常，提示请求失败.
-     */
-    public static final String UNKNOWNEXCEPTION = "请求失败";
-    /**
-     * 未知异常，提示请求失败.
-     */
-    public static final String PARAMSVALIDFAIL = "参数错误！";
+public class BaseController {
     /**
      * 成功的Status Code.
      */
@@ -61,6 +42,21 @@ public class BaseController implements Dictionary {
      */
     private static final int RESCODE_FAIL = 201;
 
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
+    /**
+     * 中心异常控制
+     *
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(BaseCenterException.class)
+    public ResponseEntity BaseCenterExceptionHandler(BaseCenterException e) {
+        logger.warn(e.getLocalizedMessage());
+        return this.getFailResult(e.getErrCode(), e.getMessage());
+    }
+
 
     /**
      * 业务异常控制
@@ -68,11 +64,37 @@ public class BaseController implements Dictionary {
      * @param e
      * @return
      */
-    @ExceptionHandler(FstoreException.class)
-    public @ResponseBody
-    Map<String,Object> EhomeExceptionHandler(FstoreException e) {
+    @ExceptionHandler(BaseException.class)
+    public ResponseEntity BaseExceptionHandler(BaseException e) {
         logger.warn(e.getLocalizedMessage());
-        return this.failResult(e.getErrCode(), e.getMessage());
+        return this.getFailResult(e.getErrCode(), e.getMessage());
+    }
+
+
+
+    /**
+     * 业务异常控制
+     *
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(ArgumentException.class)
+    public ResponseEntity BaseArgumentExceptionHandler(ArgumentException e) {
+        logger.warn(e.getLocalizedMessage());
+        return this.getFailResult(e.getErrCode(), e.getMessage());
+    }
+
+
+    /**
+     * 业务异常控制
+     *
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(BaseRuntimeException.class)
+    public ResponseEntity BaseRuntimeExceptionHandler(BaseRuntimeException e) {
+        logger.warn(e.getLocalizedMessage());
+        return this.getFailResult(e.getErrCode(), e.getMessage());
     }
 
     /**
@@ -82,172 +104,118 @@ public class BaseController implements Dictionary {
      * @return
      */
     @ExceptionHandler(RuntimeException.class)
-    public @ResponseBody
-    Map<String,Object> runtimeExceptionHandler(RuntimeException e) {
-        logger.error(e.getLocalizedMessage());
-        return this.failResult(e.getMessage());
+    public ResponseEntity runtimeExceptionHandler(RuntimeException e, HttpServletResponse response) {
+        response.setStatus(500);
+        if (e instanceof HttpMessageNotReadableException){
+            logger.warn(e.getLocalizedMessage());
+            return this.getFailResult("请求体不可读:" + e.getMessage());
+        }
+
+        logger.error("发生系统异常", e);
+        return this.getFailResult("系统异常，请和管理员联系：" + e.getMessage());
     }
 
     @ExceptionHandler(BindException.class)
-    public @ResponseBody
-    Map<String,Object> bindExceptionHandler(BindException e) {
-        logger.error(e.getLocalizedMessage());
-        return this.failResult(e.getFieldError().getDefaultMessage());
+    public ResponseEntity bindExceptionHandler(BindException e) {
+        logger.warn(e.getLocalizedMessage());
+        return this.getFailResult("");
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
+        logger.warn(e.getLocalizedMessage());
+        return this.getFailResult(e.getBindingResult().getFieldError().getDefaultMessage());
+    }
+
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity ExceptionHandler(Exception e) {
+        if (e instanceof JsonParseException){
+            logger.warn("请求体json转化出错", e);
+            return this.getFailResult("请求体json转化出错");
+        }
+        if (e instanceof HttpMediaTypeNotSupportedException){
+            logger.warn("http媒体类型不支持异常", e);
+            return this.getFailResult("http媒体类型不支持异常:" + e.getMessage());
+        }
+        if (e instanceof MissingServletRequestParameterException) {
+            logger.warn("缺少参数",e.getLocalizedMessage());
+            return this.getFailResult("缺少参数:" + e.getMessage());
+        }
+        logger.error("发生异常", e);
+        return this.getFailResult("请求出错");
+    }
 
     /**
      * 描述：获取成功结果
-     * @advised {@link #successDataResult(Object)}
+     *
      * @param obj
      * @return
+     * @advised {@link #getSuccessResult(Object)}
      */
-    @Deprecated
-    protected Map<String, Object> getSuccessResult(Object obj) {
-        return JSONUtil.createJson(true, RESCODE_OK, "操作成功", obj);
+    protected <T> ResponseEntity<T> getSuccessResult(T obj) {
+        return new ResponseEntity<T>("ok", RESCODE_OK, "操作成功", obj);
     }
 
     /**
      * 获取成功信息.
+     *
+     * @param msg
+     * @return
      * @advised
-     * @param msg
-     * @return
+     * @author 
      */
-    @Deprecated
-    protected Map<String, Object> getSuccessResult(String msg) {
-        return JSONUtil.createJson(true, RESCODE_OK, msg, Collections.EMPTY_MAP);
+    protected ResponseEntity getSuccessResult(String msg) {
+        return new ResponseEntity("ok", RESCODE_OK, msg, Collections.EMPTY_MAP);
     }
 
 
-
-    /**
-     * 获取失败信息.
-     * @param msg
-     * @return
-     */
-    protected Map<String, Object> failResult(String msg) {
-        return JSONUtil.createJson(false, RESCODE_FAIL, msg, Collections.EMPTY_MAP);
-    }
-    /**
-     * 获取失败信息.
-     * @param msg
-     * @return
-     */
-    protected Map<String, Object> failResult(int errCode,String msg) {
-        return JSONUtil.createJson(false, errCode, msg, Collections.EMPTY_MAP);
-    }
     /**
      * 获取成功信息.
-     * 只返回数据，默认操作信息为操作成功
+     *
+     * @param msg
      * @param obj
      * @return
+     * @advised
+     * @author
      */
-    protected Map<String, Object> successDataResult(Object obj) {
-        return JSONUtil.createJson(true, RESCODE_OK, "操作成功", obj);
+    protected <T> ResponseEntity<T> getSuccessResult(String msg, T obj) {
+        return new ResponseEntity("ok", RESCODE_OK, msg, obj);
     }
+
 
     /**
      * 获取默认ajax成功信息.
+     *
      * @return
+     * @advised {@link #getSuccessResult()}
+     * @author 
      */
-    protected Map<String, Object> successResult() {
-        return JSONUtil.createJson(true, RESCODE_OK, "操作成功！", Collections.EMPTY_MAP);
+    protected ResponseEntity getSuccessResult() {
+        return getSuccessResult("操作成功");
     }
 
     /**
-     * 获取默认ajax成功信息.
-     * @advised {@link #successResult()}
-     * @return
-     */
-    @Deprecated
-    protected Map<String, Object> getSuccessResult() {
-        return JSONUtil.createJson(true, RESCODE_OK, "操作成功！", Collections.EMPTY_MAP);
-    }
-
-    /**
-     * 描述：获取失败结果
+     * 描述：获取失败结果 创建人：fengsen 创建时间：2012-8-22 备注：.
      * 已移除,不要再使用
+     *
      * @param msg
      * @return
      */
-    @Deprecated
-    protected Map<String, Object> getFailResult(String msg) {
-        return JSONUtil.createJson(false, RESCODE_FAIL, msg, Collections.EMPTY_MAP);
+    protected ResponseEntity getFailResult(String msg) {
+        return this.getFailResult(RESCODE_FAIL, msg);
     }
 
-
     /**
-     * 获取dataTables需要的数据格式.
-     * @Title: dataTableJson
-     * @param totalCount 总数目
-     * @param dataList 数据列表
-     * @return Map<String,Object> 返回类型
-     * @throws
-     */
-    protected Map<String, Object> dataTableJson(int totalCount, List<?> dataList) {
-        Map<String, Object> data = new HashMap<String, Object>();
-        data.put("iTotalDisplayRecords", totalCount);
-        data.put("iTotalRecords", totalCount);
-        data.put("aaData", dataList == null ? Collections.EMPTY_LIST : dataList);
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("data", data);
-        map.put("result", "ok");
-        return map;
-    }
-
-
-    /**
-     * 获取会话作用域.
+     * 描述：获取失败结果 创建人：fengsen 创建时间：2012-8-22 备注：.
+     * 已移除,不要再使用
+     *
+     * @param msg
      * @return
      */
-    protected HttpSession sessionContext() {
-        return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession(false);
+    protected ResponseEntity getFailResult(int errCode, String msg) {
+        return new ResponseEntity("fail", errCode, msg, Collections.EMPTY_MAP);
     }
-
-    /**
-     * 获取请求作用域.
-     * @return
-     */
-    protected HttpServletRequest requestContext() {
-        return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-    }
-
-    /**
-     * 获取application作用域.
-     * @return
-     */
-    protected ServletContext applicationContext() {
-        HttpSession session = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest()
-                .getSession(false);
-        if (null != session) {
-            return session.getServletContext();
-        }
-        return null;
-    }
-
-    /**
-     * 根据相对路径获取资源绝对路径.
-     * @param path
-     * @return
-     */
-    protected String getRealPath(String path) {
-        ServletContext app = applicationContext();
-        if (null != app) {
-            String root = app.getRealPath(String.valueOf(File.separatorChar));
-            return root + path;
-        }
-        return path;
-    }
-
-    /**
-     * 获取IP地址.
-     * @return
-     */
-    protected String getIp() {
-        HttpServletRequest request = requestContext();
-        return IPUtil.getIp(request);
-    }
-
 
 
     /**
@@ -257,12 +225,21 @@ public class BaseController implements Dictionary {
      * @return
      */
     protected <T> CentreListResponse<T> getListResponse(List<T> dataList) {
-        CentreListResponse<T> response = new CentreListResponse<T>();
-        response.setDataList(dataList);
-        return response;
+        return new CentreListResponse<>(dataList);
     }
 
 
+    /**
+     * 转换为返回的带分页数据
+     *
+     * @param queryRequest
+     * @param totalCount
+     * @param dataList
+     * @return
+     */
+    protected <T> CentreCutPageResponse<T> getPageResponse(BaseQueryRequest queryRequest, long totalCount, List<T> dataList) {
+        return new CentreCutPageResponse<>(queryRequest.getPageNum(), queryRequest.getPageSize(), totalCount, dataList);
+    }
 
     /**
      * 转换为返回的带分页数据
@@ -272,14 +249,8 @@ public class BaseController implements Dictionary {
      * @param dataList
      * @return
      */
-    protected <T> CentreCutPageResponse<T> getPageResponse(BaseCondition condition, int totalCount, List<T> dataList) {
-        CentreCutPageResponse<T> response = new CentreCutPageResponse<T>();
-        response.setPageNum(condition.getPageNo());
-        response.setPageSize(condition.getPageSize());
-        response.setTotalCount(totalCount);
-        response.setDataList(dataList);
-
-        return response;
+    protected <T> CentreCutPageResponse<T> getPageResponse(BaseCondition condition, long totalCount, List<T> dataList) {
+        return new CentreCutPageResponse<>(condition.getPageNum(), condition.getPageSize(), totalCount, dataList);
     }
 
     /**
@@ -290,96 +261,21 @@ public class BaseController implements Dictionary {
      * @param dataList
      * @return
      */
-    protected <T> CentreCutPageResponse<T> getPageResponse(BaseForm form, int totalCount, List<T> dataList) {
-        CentreCutPageResponse<T> response = new CentreCutPageResponse<T>();
-        response.setPageNum(form.getPageNum());
-        response.setPageSize(form.getPageSize());
-        response.setTotalCount(totalCount);
-        response.setDataList(dataList);
-
-        return response;
+    protected <T> CentreCutPageResponse<T> getPageResponse(BaseQueryForm form, long totalCount, List<T> dataList) {
+        return new CentreCutPageResponse<>(form.getPageNum(), form.getPageSize(), totalCount, dataList);
     }
 
     /**
      * 转换为返回的带分页数据
      *
-     * @param pageNo
+     * @param pageNum
      * @param pageSize
      * @param totalCount
      * @param dataList
      * @return
      */
-    protected <T> CentreCutPageResponse<T> getPageResponse(int pageNo, int pageSize, int totalCount, List<T> dataList) {
-        CentreCutPageResponse<T> response = new CentreCutPageResponse<T>();
-        response.setPageNum(pageNo);
-        response.setPageSize(pageSize);
-        response.setTotalCount(totalCount);
-        response.setDataList(dataList);
-
-        return response;
-    }
-
-    /**
-     * 将bean转成map
-     * @param source
-     * @return
-     */
-    protected Map<String,Object> getMapByBean(Object source) throws FstoreException {
-        Map<String,Object> filedMap = new HashMap<String,Object>();
-        //反射publicFiled类的所有字段
-        Class cla = source.getClass();
-        Field[] filed = cla.getDeclaredFields();
-        for(Field fd : filed) {
-            String filedName = fd.getName();
-            String firstLetter = filedName.substring(0,1).toUpperCase(); //获得字段第一个字母大写
-            String getMethodName = "get"+firstLetter+filedName.substring(1); //转换成字段的get方法
-
-            try {
-                Method getMethod = cla.getMethod(getMethodName, new Class[] {});
-                Object value = getMethod.invoke(source, new Object[] {}); //这个对象字段get方法的值
-
-                filedMap.put(filedName, value); //添加到Map集合
-
-            } catch (Exception e) {
-                logger.error(e.getMessage(),e);
-                throw new FstoreException(e.getMessage());
-            }
-
-        }
-        return filedMap;
-    }
-
-    /**
-     * 获取cookie值*/
-    protected String getCookieValue(HttpServletRequest request,String name){
-        Cookie[] cookies = request.getCookies();
-        if(cookies != null && cookies.length > 0){
-            for (Cookie cookie : cookies){
-                if(name.equals(cookie.getName())){
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
-    }
-
-
-    /**
-     * 获取格式为yyyy-MM-dd的日期处理类
-     *
-     * @return
-     */
-    protected DateFormat getShortDateFormat() {
-        return new SimpleDateFormat("yyyy-MM-dd");
-    }
-
-    /**
-     * 获取格式为yyyy-MM-dd HH:mm:ss的日期处理类
-     *
-     * @return
-     */
-    protected DateFormat getFullDateFormat() {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    protected <T> CentreCutPageResponse<T> getPageResponse(int pageNum, int pageSize, long totalCount, List<T> dataList) {
+        return new CentreCutPageResponse<>(pageNum, pageSize, totalCount, dataList);
     }
 
 }

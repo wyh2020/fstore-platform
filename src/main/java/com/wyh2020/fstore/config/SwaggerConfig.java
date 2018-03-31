@@ -1,9 +1,7 @@
 package com.wyh2020.fstore.config;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -19,17 +17,15 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * Time: 下午2:23
  */
 
-@EnableWebMvc
 @EnableSwagger2//启用Swagger2
 @Configuration//让Spring来加载该类配置
-@ComponentScan(basePackages ="com.wyh2020.fstore.controller")
 public class SwaggerConfig {
     @Bean
     public Docket buildDocket() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(buildApiInf())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.wyh2020.fstore.controller"))//controller路径
+                .apis(RequestHandlerSelectors.basePackage("com.wyh2020.fstore.controller"))
                 .paths(PathSelectors.any())
                 .build();
     }
@@ -37,7 +33,6 @@ public class SwaggerConfig {
     private ApiInfo buildApiInf() {
         return new ApiInfoBuilder()
                 .title("SpringMVC中使用Swagger2构建RESTful APIs")
-                .termsOfServiceUrl("https://wyh2020/openapi/")
                 .description("")
                 .contact(new Contact("wyh2020", "https://wyh2020.com/", "wangyonghua@qianmi.com"))
                 .version("1.0")
