@@ -13,18 +13,62 @@ public interface Constants {
     String JWT_JSON = "jwtjson";
 
 
-    /**
-     * 删除标示
-     */
-    interface DelFlag {
+    final String JWT_SECRET = "hzhkey";
+
+
+
+    interface ExpTime {
         /**
-         * 未删除
+         * User的超时时间
          */
-        int UN_DEL = 0;
+        int UserExpTime = 10 * 24 * 60 * 60 * 1000;
+        /**
+         * 判断超时时间
+         */
+        int JudgeExpTime = 20 * 60 * 1000;
+    }
+
+    /**
+     * 用户类型 1、超级管理员 2、商户 3、客户
+     */
+    interface UserType {
+        /**
+         * 超级管理员
+         */
+        int ADMIN = 1;
+
+        /**
+         * 商户
+         */
+        int SHOP = 2;
+
+        /**
+         * 客户
+         */
+        int CUSTOMER = 3;
+
+    }
+
+
+    /**
+     * 用户状态 1、正常 2、已禁用 3、已删除
+     * normal disabled deleted
+     */
+    interface UserState {
+        /**
+         * 正常
+         */
+        int NORMAL = 1;
+
+        /**
+         * 已禁用
+         */
+        int DISABLED = 2;
 
         /**
          * 已删除
          */
-        int DEL = 1;
+        int DELETED = 3;
+
     }
 }

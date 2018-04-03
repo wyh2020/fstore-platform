@@ -12,8 +12,8 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
- * Created with wyh.
- * Date: 2017/7/3
+ * Created with hzh.
+ * Date: 2018/03/31
  * Time: 下午2:23
  */
 

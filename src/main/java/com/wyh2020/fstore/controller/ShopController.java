@@ -7,6 +7,7 @@ import com.wyh2020.fstore.base.response.ResponseEntity;
 import com.wyh2020.fstore.base.util.CopyUtil;
 import com.wyh2020.fstore.base.util.UUIDUtil;
 import com.wyh2020.fstore.condition.shop.ShopCondition;
+import com.wyh2020.fstore.entity.JwtUser;
 import com.wyh2020.fstore.exception.GateWayException;
 import com.wyh2020.fstore.form.shop.ShopCreateForm;
 import com.wyh2020.fstore.form.shop.ShopQueryForm;
@@ -18,10 +19,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -88,8 +92,12 @@ public class ShopController extends BaseController {
 	@ApiOperation(value = "修改",notes = "修改",httpMethod = "POST")
 	@RequestMapping(value = "/update", method = {RequestMethod.GET, RequestMethod.POST})
 	public @ResponseBody
-	ResponseEntity update(@ModelAttribute@Valid ShopUpdateForm form) throws GateWayException {
+	ResponseEntity update(@RequestBody@Valid ShopUpdateForm form, BindingResult result, HttpServletRequest request) throws GateWayException {
 		ShopPo po = CopyUtil.transfer(form, ShopPo.class);
+		JwtUser jwtUser = this.checkLogin(request);
+		String userCode = jwtUser.getUserCode();
+		po.setUpdater(userCode);
+		po.setUpdatetime(new Date());
 		shopService.update(po);
 		return getSuccessResult();
 	}
@@ -100,6 +108,18 @@ public class ShopController extends BaseController {
 	ResponseEntity delete(@ApiParam(value = "门店编号", required = true)@RequestParam String shopcode) throws GateWayException {
 		shopService.delete(shopcode);
 		return getSuccessResult();
+	}
+
+
+	@ApiOperation(value = "查询店铺信息",notes = "查询店铺信息",httpMethod = "GET")
+	@RequestMapping(value = "/queryByUserCode", method = {RequestMethod.GET, RequestMethod.POST})
+	public @ResponseBody
+	ResponseEntity<ShopVo> queryByUserCode(@ApiParam(value = "用户编号", required = true)@RequestParam String userCode) throws GateWayException {
+
+		ShopPo po = shopService.queryByUserCode(userCode);
+		ShopVo vo = CopyUtil.transfer(po, ShopVo.class);
+
+		return getSuccessResult(vo);
 	}
 
 	/**

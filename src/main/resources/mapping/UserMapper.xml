@@ -186,4 +186,17 @@
 		 DELETE FROM tb_user
 		  WHERE userCode = #{usercode,jdbcType=VARCHAR} 
 	</delete>
+
+
+	<select id="queryUserByPhone" parameterType="String" resultMap="UserPo">
+		SELECT
+		<include refid="fieldSql"/>
+		FROM tb_user t
+		WHERE t.phone = #{phone,jdbcType = VARCHAR}
+	</select>
+
+	<select id="queryUserCode" parameterType="String" resultType="String">
+		SELECT concat(#{prefix,jdbcType = VARCHAR} ,LPAD(nextval('user_seq'),7,0)) from dual
+	</select>
+
 </mapper>

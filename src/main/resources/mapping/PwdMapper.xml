@@ -59,6 +59,14 @@
 		 WHERE t.id = #{id,jdbcType = VARCHAR} 
 	</select>
 
+	<select id="queryByCodeAndPwd" parameterType="com.wyh2020.fstore.condition.pwd.PwdCondition" resultMap="PwdPo">
+		SELECT
+		<include refid="fieldSql"/>
+		  FROM tb_pwd t
+		WHERE 1=1
+		<include refid="whereSql"/>
+	</select>
+
 	<select id="count" parameterType="com.wyh2020.fstore.condition.pwd.PwdCondition" resultType="Integer" >
 		SELECT 
 			count(1)

@@ -69,6 +69,13 @@
 		 WHERE t.shopCode = #{shopcode,jdbcType = VARCHAR} 
 	</select>
 
+	<select id="queryByUserCode" parameterType="String" resultMap="ShopPo">
+		SELECT
+		<include refid="fieldSql"/>
+		  FROM tb_shop t
+		 WHERE t.userCode = #{usercode,jdbcType = VARCHAR}
+	</select>
+
 	<select id="count" parameterType="com.wyh2020.fstore.condition.shop.ShopCondition" resultType="Integer" >
 		SELECT 
 			count(1)

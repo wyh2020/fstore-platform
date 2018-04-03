@@ -11,8 +11,14 @@ import com.wyh2020.fstore.base.request.BaseQueryRequest;
 import com.wyh2020.fstore.base.response.CentreCutPageResponse;
 import com.wyh2020.fstore.base.response.CentreListResponse;
 import com.wyh2020.fstore.base.response.ResponseEntity;
+import com.wyh2020.fstore.entity.JwtUser;
+import com.wyh2020.fstore.exception.GateWayException;
+import com.wyh2020.fstore.util.JwtComponent;
+import io.jsonwebtoken.Claims;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -20,6 +26,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +51,8 @@ public class BaseController {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Autowired
+    private JwtComponent jwtComponent;
 
     /**
      * 中心异常控制
@@ -278,4 +287,50 @@ public class BaseController {
         return new CentreCutPageResponse<>(pageNum, pageSize, totalCount, dataList);
     }
 
+
+    /**
+     * 获取会话里保存的用户信息，未登录时报异常
+     *
+     * @param request
+     * @return
+     * @throws GateWayException
+     */
+    protected JwtUser checkLogin(HttpServletRequest request) throws GateWayException {
+
+        JwtUser jwtUser = getJwtUser(request);
+        if (jwtUser == null) {
+            throw new GateWayException(202, "未登录");
+        }
+        return jwtUser;
+    }
+
+
+    /**
+     * 获取会话里保存的用户信息，未登录时返回为空
+     *
+     * @param request
+     * @return
+     * @throws GateWayException
+     */
+    protected JwtUser getJwtUser(HttpServletRequest request) throws GateWayException {
+
+        JwtUser jwtUser;
+
+        String token = request.getHeader("Authorization");
+
+        Claims claims = jwtComponent.getClaims(token);
+
+        if (claims == null) {
+            return null;
+        }
+        String userCode = claims.getSubject();
+        if (StringUtils.isBlank(userCode)) {
+            throw new GateWayException("会话里的用户编号为空");
+        }
+        jwtUser = new JwtUser();
+        jwtUser.setUserCode(userCode);
+        jwtUser.setPhone((String) claims.get("phone"));
+        jwtUser.setUserType((Integer) claims.get("userType"));
+        return jwtUser;
+    }
 }

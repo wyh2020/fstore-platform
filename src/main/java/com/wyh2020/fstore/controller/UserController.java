@@ -9,6 +9,7 @@ import com.wyh2020.fstore.base.response.ResponseEntity;
 import com.wyh2020.fstore.base.util.CopyUtil;
 import com.wyh2020.fstore.base.util.UUIDUtil;
 import com.wyh2020.fstore.condition.user.UserCondition;
+import com.wyh2020.fstore.entity.JwtUser;
 import com.wyh2020.fstore.exception.GateWayException;
 import com.wyh2020.fstore.form.user.UserCreateForm;
 import com.wyh2020.fstore.form.user.UserQueryForm;
@@ -20,10 +21,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -94,10 +98,14 @@ public class UserController extends BaseController {
 	@ApiOperation(value = "修改",notes = "修改",httpMethod = "POST")
 	@RequestMapping(value = "/update", method = {RequestMethod.GET, RequestMethod.POST})
 	public @ResponseBody
-	ResponseEntity update(@ModelAttribute@Valid UserUpdateForm form) throws GateWayException {
+	ResponseEntity update(@RequestBody@Valid UserUpdateForm form, BindingResult result, HttpServletRequest request) throws GateWayException {
 		UserPo po = CopyUtil.transfer(form, UserPo.class);
+		JwtUser jwtUser = this.checkLogin(request);
+		String userCode = jwtUser.getUserCode();
+		po.setUpdater(userCode);
+		po.setUpdatetime(new Date());
 		userService.update(po);
-		return getSuccessResult();
+		return getSuccessResult(po);
 	}
 
 	@ApiOperation(value = "删除",notes = "删除",httpMethod = "POST")
