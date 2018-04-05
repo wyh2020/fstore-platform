@@ -7,21 +7,28 @@ import com.wyh2020.fstore.base.response.ResponseEntity;
 import com.wyh2020.fstore.base.util.CopyUtil;
 import com.wyh2020.fstore.base.util.UUIDUtil;
 import com.wyh2020.fstore.condition.evaluate.EvaluateCondition;
+import com.wyh2020.fstore.entity.JwtUser;
 import com.wyh2020.fstore.exception.GateWayException;
-import com.wyh2020.fstore.po.evaluate.EvaluatePo;
 import com.wyh2020.fstore.form.evaluate.EvaluateCreateForm;
 import com.wyh2020.fstore.form.evaluate.EvaluateQueryForm;
 import com.wyh2020.fstore.form.evaluate.EvaluateUpdateForm;
+import com.wyh2020.fstore.po.evaluate.EvaluatePo;
+import com.wyh2020.fstore.po.trade.TradePo;
 import com.wyh2020.fstore.service.EvaluateService;
+import com.wyh2020.fstore.service.TradeService;
 import com.wyh2020.fstore.vo.evaluate.EvaluateVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -32,6 +39,8 @@ public class EvaluateController extends BaseController {
 
 	@Autowired
 	private EvaluateService evaluateService;
+	@Autowired
+	private TradeService tradeService;
 
 	@ApiOperation(value = "查询",notes = "查询",httpMethod = "GET")
 	@RequestMapping(value = "/query", method = {RequestMethod.GET, RequestMethod.POST})
@@ -78,9 +87,22 @@ public class EvaluateController extends BaseController {
 	@ApiOperation(value = "新增",notes = "新增",httpMethod = "POST")
 	@RequestMapping(value = "/add", method = {RequestMethod.GET, RequestMethod.POST})
 	public @ResponseBody
-	ResponseEntity<EvaluateVo> add(@ModelAttribute@Valid EvaluateCreateForm form) throws GateWayException {
+	ResponseEntity<EvaluateVo> add(@RequestBody@Valid EvaluateCreateForm form, BindingResult result, HttpServletRequest request) throws GateWayException {
 		EvaluatePo po = CopyUtil.transfer(form, EvaluatePo.class);
+		JwtUser jwtUser = this.checkLogin(request);
+		String tradeno = form.getTradeno();
+		if(StringUtils.isBlank(tradeno)){
+			return getFailResult("没有订单需要评价！");
+		}
+		TradePo tradePo = tradeService.query(tradeno);
+		String userCode = jwtUser.getUserCode();
 		po.setId(UUIDUtil.getUUID());
+		po.setUsercode(userCode);
+		po.setCreater(userCode);
+		po.setShopcode(tradePo.getShopcode());
+		po.setGoodids(tradePo.getGoodids());
+		po.setPrice(tradePo.getPrice());
+		po.setCreatetime(new Date());
 		evaluateService.insert(po);
 		EvaluateVo vo = CopyUtil.transfer(po, EvaluateVo.class);
 		return getSuccessResult(vo);

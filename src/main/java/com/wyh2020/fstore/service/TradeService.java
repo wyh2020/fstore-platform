@@ -6,4 +6,12 @@ import com.wyh2020.fstore.po.trade.TradePo;
 
 public interface TradeService extends BaseService<TradePo, TradeCondition> {
 
+
+
+    /**
+     * 获取新的TradeNo
+     * @return
+     */
+    String queryTradeNo();
+
 }

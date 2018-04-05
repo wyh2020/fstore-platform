@@ -1,5 +1,6 @@
 package com.wyh2020.fstore.controller;
 
+import com.wyh2020.fstore.base.constants.Constants;
 import com.wyh2020.fstore.base.controller.BaseController;
 import com.wyh2020.fstore.base.response.CentreCutPageResponse;
 import com.wyh2020.fstore.base.response.CentreListResponse;
@@ -7,21 +8,28 @@ import com.wyh2020.fstore.base.response.ResponseEntity;
 import com.wyh2020.fstore.base.util.CopyUtil;
 import com.wyh2020.fstore.base.util.UUIDUtil;
 import com.wyh2020.fstore.condition.pay.PayCondition;
+import com.wyh2020.fstore.entity.JwtUser;
 import com.wyh2020.fstore.exception.GateWayException;
 import com.wyh2020.fstore.form.pay.PayCreateForm;
 import com.wyh2020.fstore.form.pay.PayQueryForm;
 import com.wyh2020.fstore.form.pay.PayUpdateForm;
 import com.wyh2020.fstore.po.pay.PayPo;
+import com.wyh2020.fstore.po.trade.TradePo;
 import com.wyh2020.fstore.service.PayService;
+import com.wyh2020.fstore.service.TradeService;
 import com.wyh2020.fstore.vo.pay.PayVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -31,6 +39,8 @@ public class PayController extends BaseController {
 
 	@Autowired
 	private PayService payService;
+	@Autowired
+	private TradeService tradeService;
 
 	@ApiOperation(value = "查询",notes = "查询",httpMethod = "GET")
 	@RequestMapping(value = "/query", method = {RequestMethod.GET, RequestMethod.POST})
@@ -77,10 +87,34 @@ public class PayController extends BaseController {
 	@ApiOperation(value = "新增",notes = "新增",httpMethod = "POST")
 	@RequestMapping(value = "/add", method = {RequestMethod.GET, RequestMethod.POST})
 	public @ResponseBody
-	ResponseEntity<PayVo> add(@ModelAttribute@Valid PayCreateForm form) throws GateWayException {
+	ResponseEntity<PayVo> add(@RequestBody@Valid PayCreateForm form, BindingResult result, HttpServletRequest request) throws GateWayException {
 		PayPo po = CopyUtil.transfer(form, PayPo.class);
+		JwtUser jwtUser = this.checkLogin(request);
+		String tradeno = form.getTradeno();
+		if(StringUtils.isBlank(tradeno)){
+			return getFailResult("没有订单支付！");
+		}
+
+		TradePo tradePo = tradeService.query(tradeno);
+		if(tradePo.getState() == Constants.TradeState.Payed){
+			return getFailResult("订单已支付无需再支付！");
+		}
+		String userCode = jwtUser.getUserCode();
 		po.setId(UUIDUtil.getUUID());
+		po.setGoodids(tradePo.getGoodids());
+		po.setPrice(tradePo.getPrice());
+		po.setShopcode(tradePo.getShopcode());
+		po.setUsercode(userCode);
+		po.setCreater(userCode);
+		po.setCreatetime(new Date());
 		payService.insert(po);
+
+		TradePo tradePo1 = new TradePo();
+		tradePo1.setTradeno(tradeno);
+		tradePo1.setState(Constants.TradeState.Payed);
+		tradePo1.setUpdater(userCode);
+		tradePo1.setUpdatetime(new Date());
+		tradeService.update(tradePo1);
 		PayVo vo = CopyUtil.transfer(po, PayVo.class);
 		return getSuccessResult(vo);
 	}

@@ -1,10 +1,13 @@
 package com.wyh2020.fstore.form.shop;
 
 import com.wyh2020.fstore.base.form.BaseQueryForm;
+import com.wyh2020.fstore.util.DateUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -34,6 +37,10 @@ public class ShopQueryForm extends BaseQueryForm {
 
 	@ApiModelProperty(value = "创建人", required = false)
 	private String creater;
+
+	@ApiModelProperty(value = "创建时间,格式为:" + DateUtil.DATE_PATTERN, required = false)
+	@DateTimeFormat(pattern = DateUtil.DATE_PATTERN)
+	private Date createtime;
 
 	@ApiModelProperty(value = "修改人", required = false)
 	private String updater;

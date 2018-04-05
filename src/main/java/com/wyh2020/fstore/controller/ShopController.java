@@ -5,7 +5,6 @@ import com.wyh2020.fstore.base.response.CentreCutPageResponse;
 import com.wyh2020.fstore.base.response.CentreListResponse;
 import com.wyh2020.fstore.base.response.ResponseEntity;
 import com.wyh2020.fstore.base.util.CopyUtil;
-import com.wyh2020.fstore.base.util.UUIDUtil;
 import com.wyh2020.fstore.condition.shop.ShopCondition;
 import com.wyh2020.fstore.entity.JwtUser;
 import com.wyh2020.fstore.exception.GateWayException;
@@ -81,9 +80,15 @@ public class ShopController extends BaseController {
 	@ApiOperation(value = "新增",notes = "新增",httpMethod = "POST")
 	@RequestMapping(value = "/add", method = {RequestMethod.GET, RequestMethod.POST})
 	public @ResponseBody
-	ResponseEntity<ShopVo> add(@ModelAttribute@Valid ShopCreateForm form) throws GateWayException {
+	ResponseEntity<ShopVo> add(@RequestBody@Valid ShopCreateForm form, BindingResult result, HttpServletRequest request) throws GateWayException {
 		ShopPo po = CopyUtil.transfer(form, ShopPo.class);
-		po.setShopcode(UUIDUtil.getUUID());
+		JwtUser jwtUser = this.checkLogin(request);
+		String userCode = jwtUser.getUserCode();
+		String shopCode = shopService.queryShopCode();
+		po.setShopcode(shopCode);
+		po.setUsercode(userCode);
+		po.setCreater(userCode);
+		po.setCreatetime(new Date());
 		shopService.insert(po);
 		ShopVo vo = CopyUtil.transfer(po, ShopVo.class);
 		return getSuccessResult(vo);

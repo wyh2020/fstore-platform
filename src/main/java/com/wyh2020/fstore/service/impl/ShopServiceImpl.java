@@ -13,8 +13,15 @@ public class ShopServiceImpl extends BaseServiceImpl<ShopPo, ShopCondition, Shop
 
     @Autowired
     private ShopMapper shopMapper;
+
+
     @Override
     public ShopPo queryByUserCode(String userCode) {
         return shopMapper.queryByUserCode(userCode);
+    }
+
+    @Override
+    public String queryShopCode() {
+        return shopMapper.queryShopCode();
     }
 }

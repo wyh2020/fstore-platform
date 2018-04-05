@@ -6,4 +6,5 @@ import com.wyh2020.fstore.po.cart.CartPo;
 
 public interface CartMapper extends BaseMapper<CartPo, CartCondition> {
 
+    public void deleteList(String[] list);
 }

@@ -3,6 +3,7 @@ package com.wyh2020.fstore.condition.shop;
 import com.wyh2020.fstore.base.condition.BaseCondition;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -40,6 +41,10 @@ public class ShopCondition extends BaseCondition {
 	 * 创建人
 	*/
 	private String creater;
+	/**
+	 * 创建时间
+	 */
+	private Date createtime;
 	/**
 	 * 修改人
 	*/

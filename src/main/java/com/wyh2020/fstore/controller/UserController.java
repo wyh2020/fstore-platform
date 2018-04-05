@@ -2,12 +2,12 @@ package com.wyh2020.fstore.controller;
 
 import com.wyh2020.fstore.base.annotation.Identity;
 import com.wyh2020.fstore.base.bean.role.identity.IdentityUser;
+import com.wyh2020.fstore.base.constants.Constants;
 import com.wyh2020.fstore.base.controller.BaseController;
 import com.wyh2020.fstore.base.response.CentreCutPageResponse;
 import com.wyh2020.fstore.base.response.CentreListResponse;
 import com.wyh2020.fstore.base.response.ResponseEntity;
 import com.wyh2020.fstore.base.util.CopyUtil;
-import com.wyh2020.fstore.base.util.UUIDUtil;
 import com.wyh2020.fstore.condition.user.UserCondition;
 import com.wyh2020.fstore.entity.JwtUser;
 import com.wyh2020.fstore.exception.GateWayException;
@@ -87,9 +87,22 @@ public class UserController extends BaseController {
 	@ApiOperation(value = "新增",notes = "新增",httpMethod = "POST")
 	@RequestMapping(value = "/add", method = {RequestMethod.GET, RequestMethod.POST})
 	public @ResponseBody
-	ResponseEntity<UserVo> add(@ModelAttribute@Valid UserCreateForm form) throws GateWayException {
+	ResponseEntity<UserVo> add(@RequestBody@Valid UserCreateForm form, BindingResult result, HttpServletRequest request) throws GateWayException {
 		UserPo po = CopyUtil.transfer(form, UserPo.class);
-		po.setUsercode(UUIDUtil.getUUID());
+		JwtUser jwtUser = this.checkLogin(request);
+		String prefix;
+		if(form.getType().equals(Constants.UserType.ADMIN)){
+			prefix = "V";
+		}else if(form.getType().equals(Constants.UserType.SHOP)){
+			prefix = "S";
+		}else{
+			prefix = "C";
+		}
+		String userCode = userService.queryUserCode(prefix);
+		String creater = jwtUser.getUserCode();
+		po.setUsercode(userCode);
+		po.setCreater(creater);
+		po.setCreatetime(new Date());
 		userService.insert(po);
 		UserVo vo = CopyUtil.transfer(po, UserVo.class);
 		return getSuccessResult(vo);

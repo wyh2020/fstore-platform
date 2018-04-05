@@ -7,4 +7,6 @@ import com.wyh2020.fstore.po.cart.CartPo;
 
 public interface CartService extends BaseService<CartPo, CartCondition> {
 
+    public void deleteList(String[] list);
+
 }

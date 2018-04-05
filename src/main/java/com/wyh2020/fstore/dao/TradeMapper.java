@@ -7,4 +7,10 @@ import com.wyh2020.fstore.po.trade.TradePo;
 
 public interface TradeMapper extends BaseMapper<TradePo, TradeCondition> {
 
+    /**
+     * 获取新的TradeNo
+     * @return
+     */
+    String queryTradeNo();
+
 }

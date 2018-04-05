@@ -1,27 +1,42 @@
 package com.wyh2020.fstore.controller;
 
+import com.wyh2020.fstore.base.constants.Constants;
 import com.wyh2020.fstore.base.controller.BaseController;
 import com.wyh2020.fstore.base.response.CentreCutPageResponse;
 import com.wyh2020.fstore.base.response.CentreListResponse;
 import com.wyh2020.fstore.base.response.ResponseEntity;
 import com.wyh2020.fstore.base.util.CopyUtil;
-import com.wyh2020.fstore.base.util.UUIDUtil;
+import com.wyh2020.fstore.bo.trade.TradeBo;
+import com.wyh2020.fstore.condition.evaluate.EvaluateCondition;
+import com.wyh2020.fstore.condition.good.GoodCondition;
 import com.wyh2020.fstore.condition.trade.TradeCondition;
+import com.wyh2020.fstore.entity.JwtUser;
 import com.wyh2020.fstore.exception.GateWayException;
 import com.wyh2020.fstore.form.trade.TradeCreateForm;
 import com.wyh2020.fstore.form.trade.TradeQueryForm;
 import com.wyh2020.fstore.form.trade.TradeUpdateForm;
+import com.wyh2020.fstore.po.good.GoodPo;
 import com.wyh2020.fstore.po.trade.TradePo;
+import com.wyh2020.fstore.service.CartService;
+import com.wyh2020.fstore.service.EvaluateService;
+import com.wyh2020.fstore.service.GoodService;
 import com.wyh2020.fstore.service.TradeService;
+import com.wyh2020.fstore.util.DateUtil;
 import com.wyh2020.fstore.vo.trade.TradeVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -31,6 +46,12 @@ public class TradeController extends BaseController {
 
 	@Autowired
 	private TradeService tradeService;
+	@Autowired
+	private CartService cartService;
+	@Autowired
+	private GoodService goodService;
+	@Autowired
+	private EvaluateService evaluateService;
 
 	@ApiOperation(value = "查询",notes = "查询",httpMethod = "GET")
 	@RequestMapping(value = "/query", method = {RequestMethod.GET, RequestMethod.POST})
@@ -63,33 +84,68 @@ public class TradeController extends BaseController {
 	@ApiOperation(value = "查询列表(带分页)",notes = "查询列表(带分页)",httpMethod = "GET")
 	@RequestMapping(value = "/queryPageList", method = {RequestMethod.GET, RequestMethod.POST})
 	public @ResponseBody
-	ResponseEntity<CentreCutPageResponse<TradeVo>> queryPageList(@ModelAttribute@Valid TradeQueryForm form) throws GateWayException {
+	ResponseEntity<CentreCutPageResponse<TradeBo>> queryPageList(@ModelAttribute@Valid TradeQueryForm form) throws GateWayException {
 		TradeCondition condition = this.getConditionByQueryForm(form);
 		List<TradeVo> voList = new ArrayList<>();
+		List<TradeBo> boList = new ArrayList<>();
 		int count = tradeService.queryCount(condition);
 		if (count > 0) {
 			List<TradePo> poList = tradeService.queryList(condition);
 			voList = CopyUtil.transfer(poList, TradeVo.class);
+			if (!CollectionUtils.isEmpty(voList)) {
+				voList.stream().forEach(c -> {
+					GoodCondition goodCondition = new GoodCondition();
+					goodCondition.setGoodidList(Arrays.asList(c.getGoodids().split(",")));
+					List<GoodPo> goodPoList = goodService.queryList(goodCondition);
+					TradeBo tradeBo = CopyUtil.transfer(c, TradeBo.class);
+					EvaluateCondition evaluateCondition = new EvaluateCondition();
+					evaluateCondition.setTradeno(tradeBo.getTradeno());
+					int count1 = evaluateService.queryCount(evaluateCondition);
+					tradeBo.setEvaluateState(count1 > 0 ? Constants.EvaluateState.Evaluated : Constants.EvaluateState.UnEvaluate);
+					tradeBo.setGoodList(goodPoList);
+					boList.add(tradeBo);
+				});
+			}
 		}
-		return getSuccessResult(getPageResponse(form, count, voList));
+		return getSuccessResult(getPageResponse(form, count, boList));
 	}
 
 	@ApiOperation(value = "新增",notes = "新增",httpMethod = "POST")
 	@RequestMapping(value = "/add", method = {RequestMethod.GET, RequestMethod.POST})
 	public @ResponseBody
-	ResponseEntity<TradeVo> add(@ModelAttribute@Valid TradeCreateForm form) throws GateWayException {
+	ResponseEntity<TradeVo> add(@RequestBody@Valid TradeCreateForm form, BindingResult result, HttpServletRequest request) throws GateWayException {
 		TradePo po = CopyUtil.transfer(form, TradePo.class);
-		po.setTradeno(UUIDUtil.getUUID());
+		JwtUser jwtUser = this.checkLogin(request);
+		String userCode = jwtUser.getUserCode();
+		String tradeNo = "T" + DateUtil.getCurrentDate("yyyyMMddhhmmss") + tradeService.queryTradeNo();
+		po.setTradeno(tradeNo);
+		// 计算价格
+		GoodCondition condition = new GoodCondition();
+		condition.setGoodidList(Arrays.asList(form.getGoodids().split(",")));
+		List<GoodPo> poList = goodService.queryList(condition);
+		Double d = poList.stream().mapToDouble(c -> c.getPrice().doubleValue()).sum();
+		po.setPrice(new BigDecimal(d));
+		po.setState(Constants.TradeState.UnPay);
+		po.setUsercode(userCode);
+		po.setCreater(userCode);
+		po.setCreatetime(new Date());
 		tradeService.insert(po);
 		TradeVo vo = CopyUtil.transfer(po, TradeVo.class);
+		// 删除购物车相应的数据
+		String[] list = form.getCartids().split(",");
+		cartService.deleteList(list);
 		return getSuccessResult(vo);
 	}
 
 	@ApiOperation(value = "修改",notes = "修改",httpMethod = "POST")
 	@RequestMapping(value = "/update", method = {RequestMethod.GET, RequestMethod.POST})
 	public @ResponseBody
-	ResponseEntity update(@ModelAttribute@Valid TradeUpdateForm form) throws GateWayException {
+	ResponseEntity update(@RequestBody@Valid TradeUpdateForm form, BindingResult result, HttpServletRequest request) throws GateWayException {
 		TradePo po = CopyUtil.transfer(form, TradePo.class);
+		JwtUser jwtUser = this.checkLogin(request);
+		String userCode = jwtUser.getUserCode();
+		po.setUpdater(userCode);
+		po.setUpdatetime(new Date());
 		tradeService.update(po);
 		return getSuccessResult();
 	}

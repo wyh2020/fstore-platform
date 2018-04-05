@@ -71,4 +71,94 @@ public interface Constants {
         int DELETED = 3;
 
     }
+
+    /**
+     * 菜系
+     * 1 鲁菜、2 川菜、3 粤菜、4 闽菜、5 苏菜、6 浙菜、7 湘菜、8 徽菜
+     */
+    interface Cuisines {
+        /**
+         * ShandongCuisine 鲁菜
+         */
+        int ShandongCuisine = 1;
+
+        /**
+         * SichuanCuisine 川菜
+         */
+        int SichuanCuisine = 2;
+
+        /**
+         * GuangdongCuisine 粤菜
+         */
+        int GuangdongCuisine = 3;
+
+        /**
+         * FujianCuisine 闽菜
+         */
+        int FujianCuisine = 4;
+
+        /**
+         * JiangsuCuisine 苏菜
+         */
+        int JiangsuCuisine = 5;
+
+        /**
+         * ZhejiangCuisine 浙菜
+         */
+        int ZhejiangCuisine = 6;
+
+        /**
+         * HunanCuisine 湘菜
+         */
+        int HunanCuisine = 7;
+
+        /**
+         * AnhuiCuisine 徽菜
+         */
+        int AnhuiCuisine = 8;
+
+    }
+
+
+    interface TradeState {
+
+        /**
+         * 未支付
+         */
+        int UnPay = 1;
+
+        /**
+         * 已支付
+         */
+        int Payed = 2;
+
+        /**
+         * 已取消
+         */
+        int Cancle = 3;
+
+        /**
+         * 已删除
+         */
+        int Del = 9;
+
+    }
+
+
+    interface EvaluateState {
+
+        /**
+         * 未评价
+         */
+        int UnEvaluate = 1;
+
+        /**
+         * 已评价
+         */
+        int Evaluated = 2;
+
+    }
+
+
+
 }

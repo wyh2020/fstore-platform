@@ -14,4 +14,10 @@ public interface ShopService extends BaseService<ShopPo, ShopCondition> {
      */
     public ShopPo queryByUserCode(String userCode);
 
+    /**
+     * 获取新的ShopCode
+     * @return
+     */
+    String queryShopCode();
+
 }

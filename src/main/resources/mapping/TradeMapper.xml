@@ -72,8 +72,8 @@
 	<select id="count" parameterType="com.wyh2020.fstore.condition.trade.TradeCondition" resultType="Integer" >
 		SELECT 
 			count(1)
-		  FROM tb_trade t 
-		 WHERE 1=1
+		  FROM tb_trade t
+		WHERE 1=1 AND <![CDATA[ t.state <> 9 ]]>
 		<include refid="whereSql"/>
 	</select>
 
@@ -81,7 +81,7 @@
 		SELECT 
 		<include refid="fieldSql"/>
 		  FROM tb_trade t 
-		 WHERE 1=1
+		 WHERE 1=1 AND <![CDATA[ t.state <> 9 ]]>
 		<include refid="whereSql"/>
 	</select>
 
@@ -186,4 +186,8 @@
 		 DELETE FROM tb_trade
 		  WHERE tradeNo = #{tradeno,jdbcType=VARCHAR} 
 	</delete>
+
+	<select id="queryTradeNo" resultType="String">
+		SELECT concat(LPAD(nextval('shop_seq'),7,0)) from dual
+	</select>
 </mapper>

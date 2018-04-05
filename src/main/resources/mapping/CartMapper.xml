@@ -172,4 +172,13 @@
 		 DELETE FROM tb_cart
 		  WHERE id = #{id,jdbcType=VARCHAR} 
 	</delete>
+
+	<delete id="deleteList" parameterType="String">
+		 DELETE FROM tb_cart
+		  WHERE id in
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
 </mapper>

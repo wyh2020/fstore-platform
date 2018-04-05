@@ -42,4 +42,7 @@ public class TradeCreateForm {
 	@DateTimeFormat(pattern = DateUtil.FORMAT)
 	private Date updatetime;
 
+	@ApiModelProperty(value = "编号", required = false)
+	private String cartids;
+
 }

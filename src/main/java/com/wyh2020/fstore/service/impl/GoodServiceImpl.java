@@ -6,6 +6,7 @@ import com.wyh2020.fstore.condition.good.GoodCondition;
 import com.wyh2020.fstore.dao.GoodMapper;
 import com.wyh2020.fstore.po.good.GoodPo;
 import com.wyh2020.fstore.service.GoodService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
