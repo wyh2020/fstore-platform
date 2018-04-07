@@ -123,7 +123,9 @@ public class ShopController extends BaseController {
 
 		ShopPo po = shopService.queryByUserCode(userCode);
 		ShopVo vo = CopyUtil.transfer(po, ShopVo.class);
-
+		if (vo == null) {
+			vo = new ShopVo();
+		}
 		return getSuccessResult(vo);
 	}
 

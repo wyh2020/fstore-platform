@@ -1,5 +1,6 @@
 package com.wyh2020.fstore.controller;
 
+import com.wyh2020.fstore.base.constants.Constants;
 import com.wyh2020.fstore.base.controller.BaseController;
 import com.wyh2020.fstore.base.response.CentreCutPageResponse;
 import com.wyh2020.fstore.base.response.CentreListResponse;
@@ -13,7 +14,9 @@ import com.wyh2020.fstore.form.good.GoodCreateForm;
 import com.wyh2020.fstore.form.good.GoodQueryForm;
 import com.wyh2020.fstore.form.good.GoodUpdateForm;
 import com.wyh2020.fstore.po.good.GoodPo;
+import com.wyh2020.fstore.po.shop.ShopPo;
 import com.wyh2020.fstore.service.GoodService;
+import com.wyh2020.fstore.service.ShopService;
 import com.wyh2020.fstore.vo.good.GoodVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,6 +38,8 @@ public class GoodController extends BaseController {
 
 	@Autowired
 	private GoodService goodService;
+	@Autowired
+	private ShopService shopService;
 
 	@ApiOperation(value = "查询",notes = "查询",httpMethod = "GET")
 	@RequestMapping(value = "/query", method = {RequestMethod.GET, RequestMethod.POST})
@@ -67,8 +72,16 @@ public class GoodController extends BaseController {
 	@ApiOperation(value = "查询列表(带分页)",notes = "查询列表(带分页)",httpMethod = "GET")
 	@RequestMapping(value = "/queryPageList", method = {RequestMethod.GET, RequestMethod.POST})
 	public @ResponseBody
-	ResponseEntity<CentreCutPageResponse<GoodVo>> queryPageList(@ModelAttribute@Valid GoodQueryForm form) throws GateWayException {
+	ResponseEntity<CentreCutPageResponse<GoodVo>> queryPageList(@ModelAttribute@Valid GoodQueryForm form, BindingResult result, HttpServletRequest request) throws GateWayException {
 		GoodCondition condition = this.getConditionByQueryForm(form);
+		JwtUser jwtUser = this.checkLogin(request);
+		String userCode = jwtUser.getUserCode();
+		ShopPo shopPo = shopService.queryByUserCode(userCode);
+		Integer userType = jwtUser.getUserType();
+
+		if(userType.equals(Constants.UserType.SHOP)){
+			condition.setShopcode(shopPo.getShopcode());
+		}
 		List<GoodVo> voList = new ArrayList<>();
 		int count = goodService.queryCount(condition);
 		if (count > 0) {
@@ -86,6 +99,10 @@ public class GoodController extends BaseController {
 		JwtUser jwtUser = this.checkLogin(request);
 		String creater = jwtUser.getUserCode();
 		po.setGoodid(UUIDUtil.getUUID());
+
+		String userCode = jwtUser.getUserCode();
+		ShopPo shopPo = shopService.queryByUserCode(userCode);
+		po.setShopcode(shopPo.getShopcode());
 		po.setCreater(creater);
 		po.setCreatetime(new Date());
 		goodService.insert(po);
