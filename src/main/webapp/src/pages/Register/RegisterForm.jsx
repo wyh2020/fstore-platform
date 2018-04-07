@@ -1,6 +1,7 @@
 /* eslint react/no-string-refs:0 */
 import React, { Component } from 'react';
-import { Input, Button, Checkbox, Grid } from '@icedesign/base';
+import { hashHistory } from 'react-router';
+import { Input, Button, Grid, Feedback, Radio } from '@icedesign/base';
 import {
   FormBinderWrapper as IceFormBinderWrapper,
   FormBinder as IceFormBinder,
@@ -8,8 +9,10 @@ import {
 } from '@icedesign/form-binder';
 import IceIcon from '@icedesign/icon';
 import './RegisterForm.scss';
+import CallApi from '../../util/Api';
 
 const { Row, Col } = Grid;
+const { Group: RadioGroup } = Radio;
 
 export default class RegisterForm extends Component {
   static displayName = 'RegisterForm';
@@ -24,6 +27,7 @@ export default class RegisterForm extends Component {
         passwd: undefined,
         rePasswd: undefined,
         checkbox: false,
+        type: '3',
       },
     };
   }
@@ -55,9 +59,30 @@ export default class RegisterForm extends Component {
     });
   };
 
+  onChangeType = (value) => {
+    console.log(`value-------${value}`);
+    const oldValue = this.state.value;
+    oldValue.type = value;
+    this.setState({
+      value: oldValue,
+    });
+  }
+
   handleSubmit = (e) => {
     e.preventDefault();
     this.refs.form.validateAll((errors, values) => {
+      CallApi('/od/auth/reg', { phone: values.account, password: values.passwd, rePasswd: values.rePasswd, type: Number(values.type) }, 'POST', false).then((res) => {
+        if (res.result === 'fail') {
+          Feedback.toast.error(res.msg);
+        } else {
+          console.log(`res=====${res}`);
+          // 注册成功后跳转到登录页面
+          hashHistory.push('/login');
+          Feedback.toast.success('注册成功');
+        }
+      }).catch((err) => {
+        Feedback.toast.error(err);
+      });
       console.log('values', values);
     });
   };
@@ -81,7 +106,7 @@ export default class RegisterForm extends Component {
                     style={styles.inputIcon}
                   />
                   <IceFormBinder name="account" required message="必填">
-                    <Input maxLength={20} placeholder="会员名/邮箱/手机号" />
+                    <Input maxLength={20} placeholder="手机号" />
                   </IceFormBinder>
                 </Col>
                 <Col>
@@ -138,9 +163,14 @@ export default class RegisterForm extends Component {
 
               <Row style={styles.formItem}>
                 <Col>
-                  <IceFormBinder name="checkbox">
-                    <Checkbox>记住账号</Checkbox>
-                  </IceFormBinder>
+                  <RadioGroup value={this.state.value.type} onChange={this.onChangeType}>
+                    <Radio id="shop" value="2" checked={this.state.value.type === '2'}>
+                      商户
+                    </Radio>
+                    <Radio id="customer" value="3" checked={this.state.value.type === '3'}>
+                      普通用户
+                    </Radio>
+                  </RadioGroup>
                 </Col>
               </Row>
 
@@ -155,11 +185,11 @@ export default class RegisterForm extends Component {
               </Row>
 
               <Row className="tips" style={styles.tips}>
-                <a href="/" style={styles.link}>
+                <a href="javasript:void(0)" onClick={() => hashHistory.push('/login')} style={styles.link}>
                   立即登录
                 </a>
                 <span style={styles.line}>|</span>
-                <a href="/" style={styles.link}>
+                <a href="javasript:void(0)" onClick={() => hashHistory.push('/pwd')} style={styles.link}>
                   忘记密码
                 </a>
               </Row>

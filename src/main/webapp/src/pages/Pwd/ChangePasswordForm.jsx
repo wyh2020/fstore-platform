@@ -1,13 +1,15 @@
 /* eslint react/no-string-refs:0 */
 import React, { Component } from 'react';
+import { hashHistory } from 'react-router';
 import IceContainer from '@icedesign/container';
-import { Input, Grid, Button } from '@icedesign/base';
+import { Input, Grid, Button, Feedback } from '@icedesign/base';
 import {
   FormBinderWrapper as IceFormBinderWrapper,
   FormBinder as IceFormBinder,
   FormError as IceFormError,
 } from '@icedesign/form-binder';
 import './ChangePasswordForm.scss';
+import CallApi from '../../util/Api';
 
 const { Row, Col } = Grid;
 
@@ -22,6 +24,7 @@ export default class ChangePasswordForm extends Component {
     super(props);
     this.state = {
       value: {
+        oldPasswd: '',
         passwd: '',
         rePasswd: '',
       },
@@ -35,6 +38,14 @@ export default class ChangePasswordForm extends Component {
       callback('密码必须大于8位');
     } else if (values.length > 16) {
       callback('密码必须小于16位');
+    } else {
+      callback();
+    }
+  };
+
+  checkOldPasswd = (rule, values, callback) => {
+    if (!values) {
+      callback('请输入旧密码');
     } else {
       callback();
     }
@@ -58,6 +69,21 @@ export default class ChangePasswordForm extends Component {
   validateAllFormField = () => {
     this.refs.form.validateAll((errors, values) => {
       console.log('values', values);
+      if (errors) {
+        console.log('errors', errors);
+        return;
+      }
+      CallApi('/od/auth/updatePassword', { oldPwd: values.oldPasswd, password: values.passwd, confirmPassword: values.rePasswd }, 'POST', true).then((res) => {
+        if (res.result === 'fail') {
+          Feedback.toast.error(res.msg);
+        } else {
+          console.log('res===', res);
+          Feedback.toast.success('修改成功');
+          hashHistory.push('/login');
+        }
+      }).catch((err) => {
+        Feedback.toast.error(err);
+      });
     });
   };
 
@@ -72,6 +98,26 @@ export default class ChangePasswordForm extends Component {
           >
             <div style={styles.formContent}>
               <h2 style={styles.formTitle}>修改密码</h2>
+
+              <Row wrap style={styles.formItem}>
+                <Col xxs="7" s="4" l="3" style={styles.formLabel}>
+                  旧密码：
+                </Col>
+                <Col xxs="16" s="10" l="7">
+                  <IceFormBinder
+                    name="oldPasswd"
+                    required
+                    validator={this.checkOldPasswd}
+                  >
+                    <Input
+                      htmlType="password"
+                      size="large"
+                      placeholder="请重新输入旧密码"
+                    />
+                  </IceFormBinder>
+                  <IceFormError name="oldPasswd" />
+                </Col>
+              </Row>
 
               <Row wrap style={styles.formItem}>
                 <Col xxs="7" s="4" l="3" style={styles.formLabel}>

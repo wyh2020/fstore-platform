@@ -71,6 +71,35 @@ CommonInfo.removeODUserInfo = function () {
   sessionStorageWrap.removeItem('ODUserInfo');
 };
 
+/**
+ * 存储购物车数量
+ */
+CommonInfo.saveODCartSum = function (flag) {
+  sessionStorageWrap.setItem('ODCartSum', flag);
+};
+
+CommonInfo.getODCartSum = function () {
+  return sessionStorageWrap.getItem('ODCartSum');
+};
+
+CommonInfo.removeODCartSum = function () {
+  sessionStorageWrap.removeItem('ODCartSum');
+};
+
+/**
+ * 存储店铺信息
+ */
+CommonInfo.saveODShopInfo = function (flag) {
+  sessionStorageWrap.setItem('ODShopInfo', flag);
+};
+
+CommonInfo.getODShopInfo = function () {
+  return sessionStorageWrap.getItem('ODShopInfo');
+};
+
+CommonInfo.removeODShopInfo = function () {
+  sessionStorageWrap.removeItem('ODShopInfo');
+};
 
 CommonInfo.sessionStorage = sessionStorageWrap;
 

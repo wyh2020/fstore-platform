@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Balloon, Icon } from '@icedesign/base';
+import { Balloon, Icon, Feedback, Badge } from '@icedesign/base';
 import IceImg from '@icedesign/img';
 import Layout from '@icedesign/layout';
 import Menu from '@icedesign/menu';
@@ -8,11 +8,51 @@ import cx from 'classnames';
 import { Link } from 'react-router';
 import { headerNavs } from '../navs';
 import Logo from './Logo';
+import CommonInfo from '../util/CommonInfo';
+import CallApi from '../util/Api';
 
 export default class Header extends PureComponent {
+  static displayName = 'UserLogin';
+
+  static propTypes = {};
+
+  static defaultProps = {};
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      userInfo: JSON.parse(CommonInfo.getODUserInfo()) || {},
+      sum: CommonInfo.getODCartSum() || 0,
+    };
+  }
+
+  componentDidMount() {
+    // 每隔1s取
+    setInterval(() => {
+      this.setState({
+        sum: CommonInfo.getODCartSum() || 0,
+      });
+    }, 1000);
+  }
+
+  toLoginOut = () => {
+    CallApi('/od/auth/loginout', { }, 'POST', true).then((res) => {
+      if (res.result === 'fail') {
+        Feedback.toast.error(res.msg);
+      } else {
+        CommonInfo.removeToken();
+        CommonInfo.removeODUserInfo();
+        CommonInfo.removeODCartSum();
+      }
+    }).catch((err) => {
+      Feedback.toast.error(err);
+    });
+  }
+
   render() {
     const { width, theme, isMobile, className, style, ...others } = this.props;
-
+    console.log('userInfo====', this.state.userInfo)
+    const userInfo = this.state.userInfo;
     return (
       <Layout.Header
         {...others}
@@ -26,7 +66,7 @@ export default class Header extends PureComponent {
           style={{ display: 'flex' }}
         >
           {/* Header 菜单项 begin */}
-          {headerNavs && headerNavs.length > 0 ? (
+          {userInfo.type === 3 && headerNavs && headerNavs.length > 0 ? (
             <Menu mode="horizontal" selectedKeys={[]}>
               {headerNavs.map((nav, idx) => {
                 const linkProps = {};
@@ -40,12 +80,14 @@ export default class Header extends PureComponent {
                 }
                 return (
                   <Menu.Item key={idx}>
-                    <Link {...linkProps}>
-                      {nav.icon ? (
-                        <FoundationSymbol type={nav.icon} size="small" />
-                      ) : null}
-                      {!isMobile ? nav.text : null}
-                    </Link>
+                    <Badge count={this.state.sum} overflowCount={99}>
+                      <Link {...linkProps}>
+                        {nav.icon ? (
+                          <FoundationSymbol type={nav.icon} size="small" />
+                        ) : null}
+                        {!isMobile ? nav.text : null}
+                      </Link>
+                    </Badge>
                   </Menu.Item>
                 );
               })}
@@ -73,14 +115,14 @@ export default class Header extends PureComponent {
                 />
                 <div className="user-profile">
                   <span className="user-name" style={{ fontSize: '13px' }}>
-                    淘小宝
+                    {this.state.userInfo.name}
                   </span>
                   <br />
                   <span
                     className="user-department"
                     style={{ fontSize: '12px' }}
                   >
-                    技术部
+                    {this.state.userInfo.phone}
                   </span>
                 </div>
                 <Icon
@@ -95,17 +137,12 @@ export default class Header extends PureComponent {
           >
             <ul>
               <li className="user-profile-menu-item">
-                <Link to="/">
+                <Link to="/my-info">
                   <FoundationSymbol type="person" size="small" />我的主页
                 </Link>
               </li>
               <li className="user-profile-menu-item">
-                <Link to="/">
-                  <FoundationSymbol type="repair" size="small" />设置
-                </Link>
-              </li>
-              <li className="user-profile-menu-item">
-                <Link to="/">
+                <Link to="/login" onClick={this.toLoginOut}>
                   <FoundationSymbol type="compass" size="small" />退出
                 </Link>
               </li>

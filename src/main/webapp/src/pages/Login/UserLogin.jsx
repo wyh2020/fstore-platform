@@ -1,7 +1,7 @@
 /* eslint react/no-string-refs:0 */
 import React, { Component } from 'react';
 import { hashHistory } from 'react-router';
-import { Input, Button, Checkbox, Grid, Feedback } from '@icedesign/base';
+import { Input, Button, Grid, Feedback } from '@icedesign/base';
 import {
   FormBinderWrapper as IceFormBinderWrapper,
   FormBinder as IceFormBinder,
@@ -10,6 +10,7 @@ import {
 import IceIcon from '@icedesign/icon';
 import './UserLogin.scss';
 import CallApi from '../../util/Api';
+import CommonInfo from '../../util/CommonInfo';
 
 const { Row, Col } = Grid;
 
@@ -52,12 +53,51 @@ export default class UserLogin extends Component {
       console.log('values:', values);
 
       CallApi('/od/auth/pcLogin', { phone: values.account, password: values.password }, 'POST', false).then((res) => {
-        console.log(`res=====${res}`);
-        Feedback.toast.success('登录成功');
+        if (res.result === 'fail') {
+          Feedback.toast.error(res.msg);
+        } else {
+          console.log('token===', res.token);
+          console.log('userInfo=====', res.user);
+          CommonInfo.saveToken(res.token);
+          CommonInfo.saveODUserInfo(JSON.stringify(res.user));
+          Feedback.toast.success('登录成功');
+          // 商户
+          if (res.user.type === 2) {
+            console.log('res.user.type=====', res.user.type);
+            this.queryShopInfo();
+          } else {
+            hashHistory.push('/');
+          }
+        }
+      }).catch((err) => {
+        Feedback.toast.error(err);
       });
-      // 登录成功后可通过 hashHistory.push('/') 跳转首页
     });
   };
+
+  queryShopInfo = () => {
+    const userInfo = JSON.parse(CommonInfo.getODUserInfo()) || {};
+    const usercode = userInfo.usercode;
+    console.log('usercode======', usercode)
+    CallApi('/od/shop/queryByUserCode', { userCode: usercode }, 'GET', true).then((res) => {
+      if (res.result === 'fail') {
+        Feedback.toast.error(res.msg);
+        hashHistory.push('/shop/add');
+      } else {
+        console.log('res===', res);
+        CommonInfo.saveODShopInfo(res || {});
+        if (!res.shopcode) {
+          // 如果没有店铺 去新增店铺
+          hashHistory.push('/shop/add');
+        } else {
+          hashHistory.push('/');
+        }
+      }
+    }).catch((err) => {
+      Feedback.toast.error(err);
+      hashHistory.push('/shop/add');
+    });
+  }
 
   render() {
     return (

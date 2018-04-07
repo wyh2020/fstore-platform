@@ -6,6 +6,7 @@
 import axios from 'axios/index';
 import { Feedback } from '@icedesign/base';
 import Constant from './Constant';
+import CommonInfo from './CommonInfo';
 
 export default function callApi(url, data, method, needToken) {
   let getUrlData = '';
@@ -43,9 +44,9 @@ export default function callApi(url, data, method, needToken) {
       url,
       method,
       headers: {
-        // Authorization: '',
-        // Accept: 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: CommonInfo.getToken(),
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
       data: JSON.stringify(data),
     };
@@ -53,12 +54,10 @@ export default function callApi(url, data, method, needToken) {
     config = {
       url,
       method,
-      // headers: {
-      //   // Authorization: 'odoshfsofohsa;fs9f0sufna;hf;osfosd',
-      //   // Accept: 'application/json',
-      'Content-Type': 'application/x-www-form-urlencoded',
-      // 'Content-Type': 'application/json',
-      // },
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
       data: JSON.stringify(data),
     };
   }
@@ -74,14 +73,18 @@ export default function callApi(url, data, method, needToken) {
     .then((response) => {
       if (
         response.status === 200 &&
-        response.data &&
+        response.data.rescode === 200 &&
         response.data.result === 'ok'
       ) {
+        console.log('1111111111');
         console.log(response.data.data);
         return response.data.data;
       }
-      Feedback.toast.success(response.data.msg);
-      console.log(response.data.msg);
+      return response.data;
+      // console.log('22222222');
+      // Feedback.toast.success(response.data.msg);
+      // console.log(response.data.msg);
+      // return response.data;
     })
     .catch((error) => {
       Feedback.toast.error(error);
