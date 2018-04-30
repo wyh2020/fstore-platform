@@ -8,6 +8,7 @@
 		<result column="userCode" property="usercode" jdbcType="VARCHAR"/>
 		<result column="shopCode" property="shopcode" jdbcType="VARCHAR"/>
 		<result column="goodId" property="goodid" jdbcType="VARCHAR"/>
+		<result column="sum" property="sum" jdbcType="INTEGER"/>
 		<result column="price" property="price" jdbcType="DECIMAL"/>
 		<result column="creater" property="creater" jdbcType="VARCHAR"/>
 		<result column="createTime" property="createtime" jdbcType="TIMESTAMP"/>
@@ -20,6 +21,7 @@
 		,t.userCode
 		,t.shopCode
 		,t.goodId
+		,t.sum
 		,t.price
 		,t.creater
 		,t.createTime
@@ -45,6 +47,9 @@
 		</if>
 		<if test="goodid != null and goodid != ''">
 			AND t.goodId = #{goodid,jdbcType = VARCHAR}
+		</if>
+		<if test="sum != null">
+			AND t.sum = #{sum,jdbcType = INTEGER}
 		</if>
 		<if test="price != null">
 			AND t.price = #{price,jdbcType = DECIMAL}
@@ -95,6 +100,9 @@
 		<if test="price != null">
 			,price
 		</if>
+		<if test="sum != null">
+			,sum
+		</if>
 		<if test="creater != null">
 			,creater
 		</if>
@@ -121,6 +129,9 @@
 		</if>
 		<if test="price != null">
 			,#{price,jdbcType=DECIMAL}
+		</if>
+		<if test="sum != null">
+			,#{sum,jdbcType=INTEGER}
 		</if>
 		<if test="creater != null">
 			,#{creater,jdbcType=VARCHAR}
@@ -149,8 +160,11 @@
 		    <if test="goodid != null">
 			    t.goodId = #{goodid,jdbcType = VARCHAR}, 
 		    </if>
-		    <if test="price != null">
-			    t.price = #{price,jdbcType = DECIMAL}, 
+		    <if test="sum != null">
+			    t.sum = #{sum,jdbcType = INTEGER},
+		    </if>
+			 <if test="price != null">
+			    t.price = #{price,jdbcType = DECIMAL},
 		    </if>
 		    <if test="creater != null">
 			    t.creater = #{creater,jdbcType = VARCHAR}, 
@@ -170,7 +184,7 @@
 
 	<delete id="delete" parameterType="String">
 		 DELETE FROM tb_cart
-		  WHERE id = #{id,jdbcType=VARCHAR} 
+		  WHERE id = #{id}
 	</delete>
 
 	<delete id="deleteList" parameterType="String">

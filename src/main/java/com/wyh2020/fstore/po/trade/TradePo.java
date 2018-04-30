@@ -25,6 +25,10 @@ public class TradePo {
 	*/
 	private String goodids;
 	/**
+	 * 每个菜品的数量
+	 */
+	private String sums;
+	/**
 	 * 订单状态
 	*/
 	private Integer state;

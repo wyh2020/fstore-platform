@@ -24,6 +24,9 @@ public class CartVo {
 	@ApiModelProperty(value = "菜品编号", required = false)
 	private String goodid;
 
+	@ApiModelProperty(value = "菜品数量", required = false)
+	private Integer sum;
+
 	@ApiModelProperty(value = "菜品价格", required = false)
 	private BigDecimal price;
 

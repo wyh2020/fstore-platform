@@ -40,7 +40,7 @@
 			</foreach>
 		</if>
 		<if test="shopname != null and shopname != ''">
-			AND t.shopName = #{shopname,jdbcType = VARCHAR}
+			AND t.shopName LIKE CONCAT('%',#{shopname,jdbcType = VARCHAR},'%')
 		</if>
 		<if test="usercode != null and usercode != ''">
 			AND t.userCode = #{usercode,jdbcType = VARCHAR}

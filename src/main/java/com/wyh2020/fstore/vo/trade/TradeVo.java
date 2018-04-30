@@ -23,6 +23,9 @@ public class TradeVo {
 	@ApiModelProperty(value = "菜品编号", required = false)
 	private String goodids;
 
+	@ApiModelProperty(value = "每种菜品的数量", required = false)
+	private String sums;
+
 	@ApiModelProperty(value = "订单状态", required = false)
 	private Integer state;
 

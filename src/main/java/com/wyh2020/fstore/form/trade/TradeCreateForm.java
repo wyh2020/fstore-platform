@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Map;
 
 @Data
 @ApiModel
@@ -21,6 +22,9 @@ public class TradeCreateForm {
 
 	@ApiModelProperty(value = "菜品编号", required = false)
 	private String goodids;
+
+	@ApiModelProperty(value = "每个菜品的数量", required = false)
+	private String sums;
 
 	@ApiModelProperty(value = "订单状态", required = false)
 	private Integer state;
@@ -44,5 +48,8 @@ public class TradeCreateForm {
 
 	@ApiModelProperty(value = "编号", required = false)
 	private String cartids;
+
+	@ApiModelProperty(value = "菜品数量", required = false)
+	private Map<String,Integer> goodsMap;
 
 }

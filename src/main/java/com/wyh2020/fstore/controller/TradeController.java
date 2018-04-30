@@ -16,16 +16,15 @@ import com.wyh2020.fstore.form.trade.TradeCreateForm;
 import com.wyh2020.fstore.form.trade.TradeQueryForm;
 import com.wyh2020.fstore.form.trade.TradeUpdateForm;
 import com.wyh2020.fstore.po.good.GoodPo;
+import com.wyh2020.fstore.po.shop.ShopPo;
 import com.wyh2020.fstore.po.trade.TradePo;
-import com.wyh2020.fstore.service.CartService;
-import com.wyh2020.fstore.service.EvaluateService;
-import com.wyh2020.fstore.service.GoodService;
-import com.wyh2020.fstore.service.TradeService;
+import com.wyh2020.fstore.service.*;
 import com.wyh2020.fstore.util.DateUtil;
 import com.wyh2020.fstore.vo.trade.TradeVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
@@ -52,6 +51,8 @@ public class TradeController extends BaseController {
 	private GoodService goodService;
 	@Autowired
 	private EvaluateService evaluateService;
+	@Autowired
+	private ShopService shopService;
 
 	@ApiOperation(value = "查询",notes = "查询",httpMethod = "GET")
 	@RequestMapping(value = "/query", method = {RequestMethod.GET, RequestMethod.POST})
@@ -103,6 +104,8 @@ public class TradeController extends BaseController {
 					int count1 = evaluateService.queryCount(evaluateCondition);
 					tradeBo.setEvaluateState(count1 > 0 ? Constants.EvaluateState.Evaluated : Constants.EvaluateState.UnEvaluate);
 					tradeBo.setGoodList(goodPoList);
+					ShopPo shopPo = shopService.queryWithValid(c.getShopcode());
+					tradeBo.setShopPo(shopPo);
 					boList.add(tradeBo);
 				});
 			}
@@ -123,8 +126,16 @@ public class TradeController extends BaseController {
 		GoodCondition condition = new GoodCondition();
 		condition.setGoodidList(Arrays.asList(form.getGoodids().split(",")));
 		List<GoodPo> poList = goodService.queryList(condition);
-		Double d = poList.stream().mapToDouble(c -> c.getPrice().doubleValue()).sum();
-		po.setPrice(new BigDecimal(d));
+		BigDecimal totalPrice = BigDecimal.ZERO;
+		String sums = "";
+		for(GoodPo goodPo: poList){
+			totalPrice = totalPrice.add(goodPo.getPrice().multiply(BigDecimal.valueOf(form.getGoodsMap().get(goodPo.getGoodid()))));
+			sums = sums + (StringUtils.isNotBlank(sums) ? (","+form.getGoodsMap().get(goodPo.getGoodid())) : form.getGoodsMap().get(goodPo.getGoodid()).toString());
+		}
+//		Double d = poList.stream().mapToDouble(c -> c.getPrice().doubleValue()).sum();
+		System.out.println(totalPrice);
+		po.setPrice(totalPrice);
+		po.setSums(sums);
 		po.setState(Constants.TradeState.UnPay);
 		po.setUsercode(userCode);
 		po.setCreater(userCode);

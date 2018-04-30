@@ -1,6 +1,7 @@
 package com.wyh2020.fstore.bo.trade;
 
 import com.wyh2020.fstore.po.good.GoodPo;
+import com.wyh2020.fstore.po.shop.ShopPo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -24,6 +25,9 @@ public class TradeBo {
 
 	@ApiModelProperty(value = "菜品编号", required = false)
 	private String goodids;
+
+	@ApiModelProperty(value = "每种菜品的数量", required = false)
+	private String sums;
 
 	@ApiModelProperty(value = "订单状态", required = false)
 	private Integer state;
@@ -49,5 +53,11 @@ public class TradeBo {
 	 * 评价状态
 	 */
 	private Integer evaluateState;
+
+
+	/**
+	 * 店铺信息
+	 */
+	private ShopPo shopPo;
 
 }

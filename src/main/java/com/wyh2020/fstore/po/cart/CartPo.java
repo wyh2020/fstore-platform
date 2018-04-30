@@ -25,6 +25,10 @@ public class CartPo {
 	*/
 	private String goodid;
 	/**
+	 * 商品数量
+	 */
+	private Integer sum;
+	/**
 	 * 菜品价格
 	*/
 	private BigDecimal price;

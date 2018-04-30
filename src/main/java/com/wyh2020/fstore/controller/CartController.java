@@ -33,6 +33,7 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -96,13 +97,31 @@ public class CartController extends BaseController {
 		CartPo po = CopyUtil.transfer(form, CartPo.class);
 		JwtUser jwtUser = this.checkLogin(request);
 		String userCode = jwtUser.getUserCode();
-		po.setId(UUIDUtil.getUUID());
-		po.setUsercode(userCode);
-		po.setCreater(userCode);
-		po.setCreatetime(new Date());
-		cartService.insert(po);
-		CartVo vo = CopyUtil.transfer(po, CartVo.class);
-		return getSuccessResult(vo);
+
+		CartCondition cartCondition = new CartCondition();
+		cartCondition.setGoodid(form.getGoodid());
+		cartCondition.setShopcode(form.getShopcode());
+		cartCondition.setUsercode(userCode);
+
+		List<CartPo> poList = cartService.queryList(cartCondition);
+		if(!CollectionUtils.isEmpty(poList)){
+			po.setId(poList.get(0).getId());
+			po.setSum(poList.get(0).getSum() + 1);
+			po.setUpdater(userCode);
+			po.setUpdatetime(new Date());
+			cartService.update(po);
+			CartVo vo = CopyUtil.transfer(po, CartVo.class);
+			return getSuccessResult(vo);
+		}else {
+			po.setId(UUIDUtil.getUUID());
+			po.setSum(1);
+			po.setUsercode(userCode);
+			po.setCreater(userCode);
+			po.setCreatetime(new Date());
+			cartService.insert(po);
+			CartVo vo = CopyUtil.transfer(po, CartVo.class);
+			return getSuccessResult(vo);
+		}
 	}
 
 	@ApiOperation(value = "修改",notes = "修改",httpMethod = "POST")
@@ -121,8 +140,8 @@ public class CartController extends BaseController {
 	@ApiOperation(value = "删除",notes = "删除",httpMethod = "POST")
 	@RequestMapping(value = "/delete", method = {RequestMethod.GET, RequestMethod.POST})
 	public @ResponseBody
-	ResponseEntity delete(@ApiParam(value = "编号", required = true)@RequestParam String id) throws GateWayException {
-		cartService.delete(id);
+	ResponseEntity delete(@ApiParam(value = "编号", required = true)@RequestBody Map<String,Object> params ) throws GateWayException {
+		cartService.delete(params.get("id").toString());
 		return getSuccessResult();
 	}
 

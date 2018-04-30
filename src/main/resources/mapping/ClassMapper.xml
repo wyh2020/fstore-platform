@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wyh2020.fstore.dao.ClassMapper">
+
+
+	<resultMap id="ClassPo" type="com.wyh2020.fstore.po.classs.ClassPo">
+		<result column="id" property="id" jdbcType="INTEGER"/>
+		<result column="name" property="name" jdbcType="VARCHAR"/>
+		<result column="state" property="state" jdbcType="INTEGER"/>
+	</resultMap>
+
+	<sql id="fieldSql">
+		 t.id
+		,t.name
+		,t.state
+	</sql>
+
+	<sql id="whereSql">
+		<if test="id != null">
+			AND t.id = #{id,jdbcType = INTEGER}
+		</if>
+		<if test="idList != null">
+			AND 
+			<foreach collection="idList" item="idItem" open="(" close=")" separator="OR">
+				t.id = #{idItem,jdbcType = INTEGER}
+			</foreach>
+		</if>
+		<if test="name != null and name != ''">
+			AND t.name = #{name,jdbcType = VARCHAR}
+		</if>
+		<if test="state != null">
+			AND t.state = #{state,jdbcType = INTEGER}
+		</if>
+	</sql>
+
+	<select id="select" parameterType="Integer" resultMap="ClassPo">
+		SELECT 
+		<include refid="fieldSql"/>
+		  FROM tb_class t 
+		 WHERE t.id = #{id,jdbcType = INTEGER} 
+	</select>
+
+	<select id="count" parameterType="com.wyh2020.fstore.condition.classs.ClassCondition" resultType="Integer" >
+		SELECT 
+			count(1)
+		  FROM tb_class t 
+		 WHERE 1=1
+		<include refid="whereSql"/>
+	</select>
+
+	<select id="selectList" parameterType="com.wyh2020.fstore.condition.classs.ClassCondition" resultMap="ClassPo">
+		SELECT 
+		<include refid="fieldSql"/>
+		  FROM tb_class t 
+		 WHERE 1=1
+		<include refid="whereSql"/>
+	</select>
+
+	<insert id="insert" parameterType="com.wyh2020.fstore.po.classs.ClassPo">
+		<selectKey resultType="Integer" order="AFTER" keyProperty="id">
+				SELECT LAST_INSERT_ID()
+		</selectKey>
+
+		INSERT INTO tb_class(  
+			id
+		<if test="name != null">
+			,name
+		</if>
+		<if test="state != null">
+			,state
+		</if>
+		)
+		VALUES( 
+			#{id,jdbcType=INTEGER}
+		<if test="name != null">
+			,#{name,jdbcType=VARCHAR}
+		</if>
+		<if test="state != null">
+			,#{state,jdbcType=INTEGER}
+		</if>
+		)
+	</insert>
+
+	<update id="update" parameterType="com.wyh2020.fstore.po.classs.ClassPo">
+		UPDATE tb_class t
+		 <set>
+		    <if test="name != null">
+			    t.name = #{name,jdbcType = VARCHAR}, 
+		    </if>
+		    <if test="state != null">
+			    t.state = #{state,jdbcType = INTEGER}, 
+		    </if>
+	    </set>
+		 WHERE t.id= #{id,jdbcType = INTEGER}
+	</update>
+
+	<delete id="delete" parameterType="Integer">
+		 DELETE FROM tb_class
+		  WHERE id = #{id,jdbcType=INTEGER} 
+	</delete>
+</mapper>

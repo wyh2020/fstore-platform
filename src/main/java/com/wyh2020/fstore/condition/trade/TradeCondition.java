@@ -30,6 +30,10 @@ public class TradeCondition extends BaseCondition {
 	*/
 	private String goodids;
 	/**
+	 * 每种菜品的数量
+	*/
+	private String sums;
+	/**
 	 * 订单状态
 	*/
 	private Integer state;
