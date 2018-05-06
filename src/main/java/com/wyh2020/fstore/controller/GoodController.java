@@ -126,8 +126,8 @@ public class GoodController extends BaseController {
 	@ApiOperation(value = "删除",notes = "删除",httpMethod = "POST")
 	@RequestMapping(value = "/delete", method = {RequestMethod.GET, RequestMethod.POST})
 	public @ResponseBody
-	ResponseEntity delete(@ApiParam(value = "菜品编号", required = true)@RequestParam String goodid) throws GateWayException {
-		goodService.delete(goodid);
+	ResponseEntity delete(@ApiParam(value = "菜品编号", required = true)@RequestBody GoodUpdateForm form) throws GateWayException {
+		goodService.delete(form.getGoodid());
 		return getSuccessResult();
 	}
 
